@@ -1,9 +1,20 @@
 import type { NextConfig } from "next";
+import { loadProjectEnv } from "./src/lib/load-env";
+
+loadProjectEnv();
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+    ],
+  },
   experimental: {
     agentFeedback: true,
+    proxyClientMaxBodySize: "32mb",
   },
   cacheComponents: true,
   partialPrefetching: true,

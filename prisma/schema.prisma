@@ -1,0 +1,287 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Category {
+  weekend
+  domestic
+  international
+}
+
+enum Tier {
+  Standard
+  Deluxe
+  SuperDeluxe
+}
+
+enum PublishStatus {
+  draft
+  published
+}
+
+enum ItemKind {
+  inclusion
+  exclusion
+}
+
+enum InquiryStatus {
+  new
+  contacted
+  closed
+}
+
+enum StayCategory {
+  Hstay
+  Star3
+  Star4
+  Star5
+}
+
+model SiteSetting {
+  id               Int      @id @default(1)
+  brandName        String   @db.VarChar(160)
+  shortName        String   @db.VarChar(80)
+  email            String   @db.VarChar(180)
+  phone            String   @db.VarChar(40)
+  phoneAlt         String   @db.VarChar(40)
+  phoneTel         String   @db.VarChar(40)
+  whatsapp         String   @db.VarChar(255)
+  logoUrl          String   @db.VarChar(500)
+  heroEyebrow      String   @db.VarChar(255)
+  heroTitle        String   @db.VarChar(255)
+  heroSubtitle     String   @db.Text
+  heroImage        String   @db.VarChar(500)
+  advisorEyebrow   String   @db.VarChar(160)
+  advisorTitle     String   @db.VarChar(255)
+  advisorBody      String   @db.Text
+  advisorImage     String   @db.VarChar(500)
+  footerBlurb      String   @db.Text
+  subscribeEyebrow String   @db.VarChar(160)
+  subscribeTitle   String   @db.VarChar(255)
+  subscribeBody    String   @db.Text
+  updatedAt        DateTime @updatedAt
+}
+
+model FooterBadge {
+  id        Int     @id @default(autoincrement())
+  label     String  @db.VarChar(160)
+  icon      String  @db.VarChar(64)
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+}
+
+model Partner {
+  id        Int     @id @default(autoincrement())
+  name      String  @db.VarChar(120)
+  caption   String  @db.VarChar(160)
+  logoUrl   String? @db.VarChar(500)
+  markKey   String? @db.VarChar(40)
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+}
+
+model HomeSection {
+  slug           String  @id @db.VarChar(64)
+  eyebrow        String? @db.VarChar(160)
+  title          String  @db.VarChar(255)
+  body           String? @db.Text
+  imageUrl       String? @db.VarChar(500)
+  imageAlt       String? @db.VarChar(255)
+  captionEyebrow String? @db.VarChar(160)
+  caption        String? @db.VarChar(255)
+  ctaLabel       String? @db.VarChar(80)
+  ctaHref        String? @db.VarChar(255)
+}
+
+model HomeFeature {
+  id        Int     @id @default(autoincrement())
+  icon      String  @db.VarChar(64)
+  title     String  @db.VarChar(160)
+  body      String  @db.Text
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+}
+
+model HomeStep {
+  id        Int     @id @default(autoincrement())
+  stepNo    String  @db.VarChar(8)
+  title     String  @db.VarChar(160)
+  body      String  @db.Text
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+}
+
+model OfferPerk {
+  id        Int     @id @default(autoincrement())
+  label     String  @db.VarChar(180)
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+}
+
+model InquiryPoint {
+  id        Int     @id @default(autoincrement())
+  label     String  @db.VarChar(255)
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+}
+
+model MenuGroup {
+  id        Int       @id @default(autoincrement())
+  slug      String    @unique @db.VarChar(80)
+  title     String    @db.VarChar(160)
+  icon      String    @db.VarChar(64)
+  category  Category
+  sortOrder Int       @default(0)
+  packages  Package[]
+}
+
+model Tag {
+  id       Int          @id @default(autoincrement())
+  slug     String       @unique @db.VarChar(64)
+  name     String       @db.VarChar(120)
+  packages PackageTag[]
+}
+
+model Package {
+  id            Int                @id @default(autoincrement())
+  slug          String             @unique @db.VarChar(180)
+  title         String             @db.VarChar(255)
+  category      Category
+  groupId       Int?
+  group         MenuGroup?         @relation(fields: [groupId], references: [id])
+  state         String?            @db.VarChar(120)
+  location      String             @db.VarChar(180)
+  tier          Tier
+  duration      String             @db.VarChar(80)
+  nights        Int
+  days          Int
+  price         Decimal            @db.Decimal(10, 2)
+  originalPrice Decimal?           @db.Decimal(10, 2)
+  currency      String             @default("USD") @db.Char(3)
+  rating        Decimal            @default(0) @db.Decimal(2, 1)
+  reviewCount   Int                @default(0)
+  summary       String             @db.Text
+  imageUrl      String             @db.VarChar(500)
+  latestBadge   String?            @db.VarChar(120)
+  status        PublishStatus      @default(published)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  gallery       PackageGallery[]
+  itinerary     PackageItinerary[]
+  items         PackageItem[]
+  stays         PackageStay[]
+  tags          PackageTag[]
+  placements    HomePlacement[]
+
+  @@index([category, status])
+  @@index([createdAt])
+}
+
+model PackageGallery {
+  id        Int     @id @default(autoincrement())
+  packageId Int
+  package   Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  imageUrl  String  @db.VarChar(500)
+  sortOrder Int     @default(0)
+}
+
+model PackageItinerary {
+  id        Int     @id @default(autoincrement())
+  packageId Int
+  package   Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  dayLabel  String  @db.VarChar(40)
+  title     String  @db.VarChar(180)
+  body      String  @db.Text
+  sortOrder Int     @default(0)
+}
+
+model PackageItem {
+  id        Int      @id @default(autoincrement())
+  packageId Int
+  package   Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  kind      ItemKind
+  label     String   @db.VarChar(255)
+  sortOrder Int      @default(0)
+}
+
+model PackageStay {
+  id        Int     @id @default(autoincrement())
+  packageId Int
+  package   Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  name      String       @db.VarChar(180)
+  place     String       @db.VarChar(180)
+  imageUrl  String?      @db.VarChar(500)
+  category  StayCategory @default(Hstay)
+  sortOrder Int     @default(0)
+}
+
+model PackageTag {
+  packageId Int
+  tagId     Int
+  package   Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([packageId, tagId])
+}
+
+model HomePlacement {
+  id        Int     @id @default(autoincrement())
+  slot      String  @db.VarChar(32)
+  packageId Int
+  package   Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  sortOrder Int     @default(0)
+
+  @@unique([slot, packageId])
+  @@index([slot, sortOrder])
+}
+
+model Faq {
+  id        Int     @id @default(autoincrement())
+  question  String  @db.VarChar(500)
+  answer    String  @db.Text
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+}
+
+model Testimonial {
+  id        Int     @id @default(autoincrement())
+  name      String  @db.VarChar(160)
+  tripLabel String  @db.VarChar(255)
+  quote     String  @db.Text
+  imageUrl  String? @db.VarChar(500)
+  rating    Int     @default(5)
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+}
+
+model TripInquiry {
+  id             Int           @id @default(autoincrement())
+  fullName       String        @db.VarChar(160)
+  phone          String        @db.VarChar(40)
+  email          String        @db.VarChar(180)
+  destination    String        @db.VarChar(180)
+  preferredMonth String        @db.VarChar(80)
+  tier           String        @db.VarChar(40)
+  status         InquiryStatus @default(new)
+  createdAt      DateTime      @default(now())
+}
+
+model Subscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique @db.VarChar(180)
+  createdAt DateTime @default(now())
+}
+
+model MediaAsset {
+  id           Int      @id @default(autoincrement())
+  filename     String   @unique @db.VarChar(180)
+  originalName String   @db.VarChar(255)
+  mimeType     String   @db.VarChar(120)
+  size         Int
+  createdAt    DateTime @default(now())
+}

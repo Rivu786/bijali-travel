@@ -1,0 +1,42 @@
+export const iconCatalog: { title: string; hint: string; names: string[] }[] = [
+  {
+    title: "Menu groups",
+    hint: "Paste one of these into a menu group Icon field.",
+    names: ["landscape", "nature_people", "ac_unit", "temple_hindu", "scuba_diving", "sailing", "public", "travel_explore"],
+  },
+  {
+    title: "Homepage cards",
+    hint: "Used on the distinction cards.",
+    names: ["support_agent", "price_check", "badge", "tune"],
+  },
+  {
+    title: "Footer badges",
+    hint: "Used on the trust badges.",
+    names: ["verified_user", "shield", "stars", "lock"],
+  },
+  {
+    title: "Site buttons",
+    hint: "Names already used on the public site.",
+    names: [
+      "arrow_forward",
+      "auto_awesome",
+      "call",
+      "cancel",
+      "chat",
+      "check_circle",
+      "credit_card",
+      "expand_more",
+      "flight_takeoff",
+      "hotel_class",
+      "menu",
+      "phone_in_talk",
+      "pin_drop",
+      "qr_code_2",
+      "schedule",
+      "star",
+      "thumb_up",
+      "timer",
+      "verified",
+    ],
+  },
+];
