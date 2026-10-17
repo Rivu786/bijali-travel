@@ -177,6 +177,7 @@ model Package {
   stays         PackageStay[]
   tags          PackageTag[]
   placements    HomePlacement[]
+  seo           PageSeo?
 
   @@index([category, status])
   @@index([createdAt])
@@ -275,6 +276,54 @@ model Subscriber {
   id        Int      @id @default(autoincrement())
   email     String   @unique @db.VarChar(180)
   createdAt DateTime @default(now())
+}
+
+model PageSeo {
+  id              Int      @id @default(autoincrement())
+  path            String   @unique @db.VarChar(255)
+  label           String   @db.VarChar(255)
+  metaTitle       String   @db.VarChar(255)
+  metaKeywords    String   @db.Text
+  metaDescription String   @db.Text
+  ogImage         String   @db.VarChar(500)
+  sortOrder       Int      @default(0)
+  packageId       Int?     @unique
+  package         Package? @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  updatedAt       DateTime @updatedAt
+}
+
+model PaymentContent {
+  id                Int      @id @default(1)
+  eyebrow           String   @db.VarChar(160)
+  title             String   @db.VarChar(255)
+  steps             String   @db.Text
+  formTitle         String   @db.VarChar(255)
+  journeyLabel      String   @db.VarChar(160)
+  guestLabel        String   @db.VarChar(80)
+  mobileLabel       String   @db.VarChar(80)
+  emailLabel        String   @db.VarChar(80)
+  dateLabel         String   @db.VarChar(80)
+  amountLabel       String   @db.VarChar(80)
+  referenceLabel    String   @db.VarChar(80)
+  uploadLabel       String   @db.VarChar(160)
+  submitLabel       String   @db.VarChar(160)
+  successMessage    String   @db.Text
+  privacyNote       String   @db.VarChar(255)
+  transferEyebrow   String   @db.VarChar(160)
+  qrImage           String   @db.Text
+  accountNameLabel  String   @db.VarChar(80)
+  accountName       String   @db.VarChar(180)
+  bankLabel         String   @db.VarChar(80)
+  bankName          String   @db.VarChar(180)
+  accountNoLabel    String   @db.VarChar(80)
+  accountNo         String   @db.VarChar(80)
+  ifscLabel         String   @db.VarChar(80)
+  ifsc              String   @db.VarChar(40)
+  upiLabel          String   @db.VarChar(80)
+  upi               String   @db.VarChar(180)
+  instructionsTitle String   @db.VarChar(180)
+  instructions      String   @db.Text
+  updatedAt         DateTime @updatedAt
 }
 
 model MediaAsset {

@@ -1,7 +1,21 @@
 import { InquiryForm } from "@/components/inquiry-form";
+import { getSiteProfile } from "@/lib/queries";
+import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
-export const metadata = { title: "Contact" };
+export const instant = false;
+
+export async function generateMetadata() {
+  const profile = await getSiteProfile();
+  return pageMetadata("/contact", {
+    label: "Contact",
+    metaTitle: `Contact · ${profile.brandName}`.slice(0, 255),
+    metaKeywords: "contact Bijali Tours, travel enquiry, tour booking, helpline",
+    metaDescription: `Contact ${profile.brandName} for a tailored tour proposal, bookings, and round-the-clock support.`,
+    ogImage: profile.logoUrl,
+    sortOrder: 20,
+  });
+}
 
 export default function ContactPage() {
   return (

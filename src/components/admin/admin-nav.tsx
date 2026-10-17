@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 
 const groups: { label: string; links: [string, string][] }[] = [
   { label: "Site", links: [["Overview", "/admin"], ["Icons", "/admin/icons"]] },
+  { label: "SEO", links: [["SEO", "/admin/seo"]] },
   {
     label: "Homepage",
     links: [
@@ -23,6 +24,7 @@ const groups: { label: string; links: [string, string][] }[] = [
   },
   { label: "Navigation", links: [["Menus", "/admin/menus"]] },
   { label: "Footer area", links: [["Partners", "/admin/partners"], ["Footer", "/admin/footer"]] },
+  { label: "Payment", links: [["Payment page", "/admin/payment"]] },
   {
     label: "Catalog",
     links: [

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { siteOrigin } from "@/lib/seo";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import {
@@ -20,14 +21,17 @@ const jakarta = Plus_Jakarta_Sans({
   weight: ["400", "600", "700", "800"],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Bijali Tours & Travels",
-    template: "%s · Bijali Tours & Travels",
-  },
-  description:
-    "Curated national and international tour packages from Bijali Tours & Travels — IATA and Ministry of Tourism certified.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    metadataBase: new URL(await siteOrigin()),
+    title: {
+      default: "Bijali Tours & Travels",
+      template: "%s · Bijali Tours & Travels",
+    },
+    description:
+      "Curated national and international tour packages from Bijali Tours & Travels — IATA and Ministry of Tourism certified.",
+  };
+}
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const site = await getSiteProfile();

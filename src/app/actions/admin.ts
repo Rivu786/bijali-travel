@@ -8,6 +8,8 @@ import { assertAdmin, clearAdminCookie, setAdminCookie, credentialsMatch } from 
 import { prisma } from "@/lib/db";
 import { stayCategoryEnum, tierEnum } from "@/lib/format";
 import { deleteMediaFile } from "@/lib/media";
+import { clipPayment, paymentDefaults, type PaymentCopy } from "@/lib/payment-copy";
+import { syncPackageSeo } from "@/lib/seo";
 
 function revalidateSite() {
   revalidatePath("/", "layout");
@@ -300,8 +302,34 @@ export async function savePackage(formData: FormData) {
       })),
     });
   }
+  await syncPackageSeo({
+    id: saved.id,
+    slug: saved.slug,
+    title: saved.title,
+    summary: saved.summary,
+    imageUrl: saved.imageUrl,
+  });
   revalidateSite();
+  revalidatePath(`/packages/${saved.slug}`);
   redirect(`/admin/packages/${saved.id}?saved=1`);
+}
+
+export async function saveSeo(formData: FormData) {
+  await assertAdmin();
+  const path = String(formData.get("path") ?? "");
+  if (!path.startsWith("/")) redirect("/admin/seo");
+  await prisma.pageSeo.update({
+    where: { path },
+    data: {
+      metaTitle: String(formData.get("metaTitle") ?? "").slice(0, 255),
+      metaKeywords: String(formData.get("metaKeywords") ?? ""),
+      metaDescription: String(formData.get("metaDescription") ?? ""),
+      ogImage: String(formData.get("ogImage") ?? "").slice(0, 500),
+    },
+  });
+  revalidatePath(path);
+  revalidatePath("/sitemap.xml");
+  redirect(`/admin/seo?saved=${encodeURIComponent(path)}`);
 }
 
 export async function deleteMedia(formData: FormData) {
@@ -357,6 +385,49 @@ export async function saveAdvisor(formData: FormData) {
   });
   revalidateSite();
   redirectBack(formData, "/admin/homepage?section=advisor");
+}
+
+export async function savePayment(formData: FormData) {
+  await assertAdmin();
+  const text = (name: keyof PaymentCopy) => String(formData.get(name) ?? paymentDefaults[name]);
+  const data = clipPayment({
+    eyebrow: text("eyebrow"),
+    title: text("title"),
+    steps: text("steps"),
+    formTitle: text("formTitle"),
+    journeyLabel: text("journeyLabel"),
+    guestLabel: text("guestLabel"),
+    mobileLabel: text("mobileLabel"),
+    emailLabel: text("emailLabel"),
+    dateLabel: text("dateLabel"),
+    amountLabel: text("amountLabel"),
+    referenceLabel: text("referenceLabel"),
+    uploadLabel: text("uploadLabel"),
+    submitLabel: text("submitLabel"),
+    successMessage: text("successMessage"),
+    privacyNote: text("privacyNote"),
+    transferEyebrow: text("transferEyebrow"),
+    qrImage: text("qrImage"),
+    accountNameLabel: text("accountNameLabel"),
+    accountName: text("accountName"),
+    bankLabel: text("bankLabel"),
+    bankName: text("bankName"),
+    accountNoLabel: text("accountNoLabel"),
+    accountNo: text("accountNo"),
+    ifscLabel: text("ifscLabel"),
+    ifsc: text("ifsc"),
+    upiLabel: text("upiLabel"),
+    upi: text("upi"),
+    instructionsTitle: text("instructionsTitle"),
+    instructions: text("instructions"),
+  });
+  await prisma.paymentContent.upsert({
+    where: { id: 1 },
+    create: { id: 1, ...data },
+    update: data,
+  });
+  revalidatePath("/payment");
+  redirect("/admin/payment?saved=1");
 }
 
 export async function saveFooterCopy(formData: FormData) {

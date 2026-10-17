@@ -5,6 +5,7 @@ import { Icon } from "@/components/icon";
 import { PackageCard } from "@/components/package-card";
 import { formatPrice, stayCategoryLabel } from "@/lib/format";
 import { getPackageBySlug, getPublishedPackages } from "@/lib/queries";
+import { pageMetadata } from "@/lib/seo";
 
 export const instant = false;
 
@@ -15,7 +16,16 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
   const tour = await getPackageBySlug(slug);
-  return { title: tour?.title ?? "Package" };
+  if (!tour) return { title: "Package" };
+  return pageMetadata(`/packages/${tour.slug}`, {
+    label: tour.title,
+    metaTitle: `${tour.title} · Bijali Tours & Travels`.slice(0, 255),
+    metaKeywords: `${tour.title}, tour package, Bijali Tours & Travels`,
+    metaDescription: tour.summary,
+    ogImage: tour.image,
+    sortOrder: 100,
+    packageId: tour.id,
+  });
 }
 
 export default async function PackageDetailsPage({

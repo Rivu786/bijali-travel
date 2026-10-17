@@ -12,6 +12,21 @@ import {
   pickPlaced,
   recentPackages,
 } from "@/lib/queries";
+import { pageMetadata } from "@/lib/seo";
+
+export const instant = false;
+
+export async function generateMetadata() {
+  const site = await getSiteProfile();
+  return pageMetadata("/", {
+    label: "Home",
+    metaTitle: site.brandName,
+    metaKeywords: "Bijali Tours, tour packages, domestic tours, international tours, weekend getaways",
+    metaDescription: site.heroSubtitle,
+    ogImage: site.heroImage || site.logoUrl,
+    sortOrder: 0,
+  });
+}
 
 export default async function Home() {
   const [site, content, packages] = await Promise.all([

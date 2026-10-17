@@ -1,13 +1,22 @@
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import { PackageBrowser } from "@/app/packages/package-browser";
-import { getPublishedPackages, getHomeContent, pickPlaced } from "@/lib/queries";
-
-export const metadata = {
-  title: "Tour Packages",
-};
+import { getPublishedPackages, getHomeContent, getSiteProfile, pickPlaced } from "@/lib/queries";
+import { pageMetadata } from "@/lib/seo";
 
 export const instant = false;
+
+export async function generateMetadata() {
+  const site = await getSiteProfile();
+  return pageMetadata("/packages", {
+    label: "Tour packages",
+    metaTitle: `Tour Packages · ${site.brandName}`.slice(0, 255),
+    metaKeywords: "tour packages, domestic holidays, international tours, weekend trips, Bijali Tours",
+    metaDescription: `Explore curated national and international tour packages from ${site.brandName}.`,
+    ogImage: site.heroImage || site.logoUrl,
+    sortOrder: 10,
+  });
+}
 
 export default async function PackagesPage({
   searchParams,
