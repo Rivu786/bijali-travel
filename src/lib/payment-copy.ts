@@ -3,7 +3,7 @@ export const paymentDefaults = {
   title: "Bijali Tours & Travels Secure Payment Portal",
   steps: "Select booking\nTransfer details\nUpload proof\nConfirmed",
   formTitle: "Student Booking & Transaction Details",
-  journeyLabel: "Selected journey",
+  journeyLabel: "Destination",
   guestLabel: "Guest name",
   mobileLabel: "Mobile",
   emailLabel: "Email",

@@ -60,7 +60,7 @@ export const packages: TourPackage[] = [
     tier: "Deluxe",
     price: 1299,
     originalPrice: 1699,
-    currency: "USD",
+    currency: "INR",
     rating: 4.9,
     reviews: 128,
     summary:
@@ -100,7 +100,7 @@ export const packages: TourPackage[] = [
     tier: "Super Deluxe",
     price: 3499,
     originalPrice: 4200,
-    currency: "USD",
+    currency: "INR",
     rating: 5,
     reviews: 94,
     summary:
@@ -136,7 +136,7 @@ export const packages: TourPackage[] = [
     tier: "Standard",
     price: 699,
     originalPrice: 850,
-    currency: "USD",
+    currency: "INR",
     rating: 4.8,
     reviews: 112,
     summary:
@@ -170,7 +170,7 @@ export const packages: TourPackage[] = [
     tier: "Deluxe",
     price: 1450,
     originalPrice: 1850,
-    currency: "USD",
+    currency: "INR",
     rating: 4.9,
     reviews: 86,
     summary:
@@ -206,7 +206,7 @@ export const packages: TourPackage[] = [
     location: "Italy",
     tier: "Super Deluxe",
     price: 4850,
-    currency: "USD",
+    currency: "INR",
     rating: 4.9,
     reviews: 41,
     summary:
@@ -239,7 +239,7 @@ export const packages: TourPackage[] = [
     location: "Japan",
     tier: "Deluxe",
     price: 3920,
-    currency: "USD",
+    currency: "INR",
     rating: 4.8,
     reviews: 67,
     summary:
@@ -273,7 +273,7 @@ export const packages: TourPackage[] = [
     location: "Kenya",
     tier: "Super Deluxe",
     price: 5200,
-    currency: "USD",
+    currency: "INR",
     rating: 5,
     reviews: 58,
     summary:
@@ -329,7 +329,7 @@ packages.push(
     tier: "Deluxe" as const,
     price: 899,
     originalPrice: 1099,
-    currency: "USD",
+    currency: "INR",
     rating: 4.8,
     reviews: 42,
     summary: `Handcrafted ${title.toLowerCase()} with private transfers, curated stays, and a dedicated Bijali concierge.`,
@@ -353,10 +353,10 @@ export function getPackage(slug: string) {
   return packages.find((p) => p.slug === slug);
 }
 
-export function formatPrice(value: number, currency = "USD") {
-  return new Intl.NumberFormat("en-US", {
+export function formatPrice(value: number) {
+  return new Intl.NumberFormat("en-IN", {
     style: "currency",
-    currency,
+    currency: "INR",
     maximumFractionDigits: 0,
   }).format(value);
 }

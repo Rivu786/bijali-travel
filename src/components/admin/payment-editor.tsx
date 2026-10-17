@@ -20,7 +20,7 @@ export function PaymentEditor({ content, images }: { content: PaymentCopy; image
       <section className="space-y-3 rounded-xl bg-white p-6 shadow-sm">
         <h2 className="text-xl font-semibold">Booking form</h2>
         <Field label="Form title" name="formTitle" defaultValue={content.formTitle} />
-        <Field label="Selected journey label" name="journeyLabel" defaultValue={content.journeyLabel} />
+        <Field label="Destination label" name="journeyLabel" defaultValue={content.journeyLabel} />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label="Guest name label" name="guestLabel" defaultValue={content.guestLabel} />
           <Field label="Mobile label" name="mobileLabel" defaultValue={content.mobileLabel} />

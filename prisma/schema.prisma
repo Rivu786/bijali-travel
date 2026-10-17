@@ -162,7 +162,7 @@ model Package {
   days          Int
   price         Decimal            @db.Decimal(10, 2)
   originalPrice Decimal?           @db.Decimal(10, 2)
-  currency      String             @default("USD") @db.Char(3)
+  currency      String             @default("INR") @db.Char(3)
   rating        Decimal            @default(0) @db.Decimal(2, 1)
   reviewCount   Int                @default(0)
   summary       String             @db.Text

@@ -5,17 +5,7 @@ import { Icon } from "@/components/icon";
 import { mediaSrc } from "@/lib/media-path";
 import { paymentLines, type PaymentCopy } from "@/lib/payment-copy";
 
-export function PaymentForm({
-  title,
-  duration,
-  priceLabel,
-  copy,
-}: {
-  title: string;
-  duration: string;
-  priceLabel: string;
-  copy: PaymentCopy;
-}) {
+export function PaymentForm({ copy }: { copy: PaymentCopy }) {
   const [done, setDone] = useState(false);
   const steps = paymentLines(copy.steps);
   const instructions = paymentLines(copy.instructions);
@@ -37,15 +27,11 @@ export function PaymentForm({
         }}
       >
         <h2 className="mb-6 text-xl font-bold">{copy.formTitle}</h2>
-        <div className="mb-6 rounded-xl bg-surface-low p-4">
-          <p className="text-sm text-muted">{copy.journeyLabel}</p>
-          <p className="font-semibold">{title}</p>
-          <p className="text-sm text-muted">
-            {duration}
-            {priceLabel ? ` • ${priceLabel} / person` : ""}
-          </p>
-        </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <label className="text-sm font-semibold sm:col-span-2">
+            {copy.journeyLabel}
+            <input className="input mt-1" required name="destination" autoComplete="off" placeholder="Destination" />
+          </label>
           <label className="text-sm font-semibold">
             {copy.guestLabel}
             <input className="input mt-1" required name="name" autoComplete="name" />
@@ -64,7 +50,7 @@ export function PaymentForm({
           </label>
           <label className="text-sm font-semibold">
             {copy.amountLabel}
-            <input className="input mt-1" required placeholder={priceLabel || "Amount"} />
+            <input className="input mt-1" required name="amount" inputMode="decimal" placeholder="₹" autoComplete="off" />
           </label>
           <label className="text-sm font-semibold">
             {copy.referenceLabel}

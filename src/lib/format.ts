@@ -1,9 +1,9 @@
 import type { PackageTier } from "@/lib/types";
 
-export function formatPrice(value: number, currency = "USD") {
-  return new Intl.NumberFormat("en-US", {
+export function formatPrice(value: number) {
+  return new Intl.NumberFormat("en-IN", {
     style: "currency",
-    currency,
+    currency: "INR",
     maximumFractionDigits: 0,
   }).format(value);
 }

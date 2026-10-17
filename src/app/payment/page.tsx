@@ -1,8 +1,7 @@
 import { PaymentForm } from "@/app/payment/payment-form";
-import { formatPrice } from "@/lib/format";
 import { paymentLines } from "@/lib/payment-copy";
 import { getPaymentContent } from "@/lib/payment";
-import { getPackageBySlug, getSiteProfile } from "@/lib/queries";
+import { getSiteProfile } from "@/lib/queries";
 import { pageMetadata } from "@/lib/seo";
 
 export const instant = false;
@@ -19,14 +18,8 @@ export async function generateMetadata() {
   });
 }
 
-export default async function PaymentPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const params = await searchParams;
-  const slug = typeof params.package === "string" ? params.package : "bali-tropical-bliss";
-  const [tour, copy] = await Promise.all([getPackageBySlug(slug), getPaymentContent()]);
+export default async function PaymentPage() {
+  const copy = await getPaymentContent();
   const steps = paymentLines(copy.steps);
 
   return (
@@ -48,12 +41,7 @@ export default async function PaymentPage({
             </li>
           ))}
         </ol>
-        <PaymentForm
-          title={tour?.title ?? "Selected journey"}
-          duration={tour?.duration ?? ""}
-          priceLabel={tour ? formatPrice(tour.price, tour.currency) : ""}
-          copy={copy}
-        />
+        <PaymentForm copy={copy} />
       </div>
     </div>
   );

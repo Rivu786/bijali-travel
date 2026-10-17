@@ -5,7 +5,11 @@ import { clipPayment, paymentDefaults, type PaymentCopy } from "@/lib/payment-co
 
 function readyCopy(row: PaymentCopy) {
   const copy = clipPayment(row);
-  return { ...copy, qrImage: mediaSrc(copy.qrImage) };
+  return {
+    ...copy,
+    journeyLabel: copy.journeyLabel === "Selected journey" ? "Destination" : copy.journeyLabel,
+    qrImage: mediaSrc(copy.qrImage),
+  };
 }
 
 export async function getPaymentContent(): Promise<PaymentCopy> {
