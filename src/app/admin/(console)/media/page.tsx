@@ -1,9 +1,8 @@
 import Image from "next/image";
-import { headers } from "next/headers";
 import { deleteMedia } from "@/app/actions/admin";
 import { MediaUrl } from "@/components/admin/media-url";
 import { prisma } from "@/lib/db";
-import { mediaPath } from "@/lib/media";
+import { mediaPath } from "@/lib/media-path";
 
 export const instant = false;
 
@@ -18,13 +17,7 @@ export default async function MediaAdmin({
   searchParams: Promise<{ uploaded?: string; skipped?: string; error?: string }>;
 }) {
   const query = await searchParams;
-  const [rows, headerStore] = await Promise.all([
-    prisma.mediaAsset.findMany({ orderBy: { createdAt: "desc" } }),
-    headers(),
-  ]);
-  const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host") ?? "localhost:3000";
-  const proto = headerStore.get("x-forwarded-proto") ?? (host.includes("localhost") ? "http" : "https");
-  const origin = `${proto}://${host}`;
+  const rows = await prisma.mediaAsset.findMany({ orderBy: { createdAt: "desc" } });
 
   return (
     <div>
@@ -65,13 +58,13 @@ export default async function MediaAdmin({
       ) : (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {rows.map((item) => {
-            const url = `${origin}${mediaPath(item.filename)}`;
+            const path = mediaPath(item.filename);
             const image = item.mimeType.startsWith("image/");
             return (
               <article key={item.id} className="rounded-xl bg-white p-4 shadow-sm">
                 <div className="mb-3 flex gap-3">
                   {image ? (
-                    <Image src={mediaPath(item.filename)} alt="" width={80} height={80} className="size-20 rounded-lg object-cover" unoptimized />
+                    <Image src={path} alt="" width={80} height={80} className="size-20 rounded-lg object-cover" unoptimized />
                   ) : (
                     <div className="grid size-20 place-items-center rounded-lg bg-surface-low text-xs font-semibold text-muted">
                       {item.mimeType === "application/pdf" ? "PDF" : "Video"}
@@ -84,7 +77,7 @@ export default async function MediaAdmin({
                     </p>
                   </div>
                 </div>
-                <MediaUrl url={url} />
+                <MediaUrl path={path} />
                 <form action={deleteMedia} className="mt-3">
                   <input type="hidden" name="id" value={item.id} />
                   <button className="text-sm font-semibold text-red-700">Remove</button>

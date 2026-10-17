@@ -1,16 +1,22 @@
 import { connection } from "next/server";
 import { prisma } from "@/lib/db";
+import { mediaSrc } from "@/lib/media-path";
 import { clipPayment, paymentDefaults, type PaymentCopy } from "@/lib/payment-copy";
+
+function readyCopy(row: PaymentCopy) {
+  const copy = clipPayment(row);
+  return { ...copy, qrImage: mediaSrc(copy.qrImage) };
+}
 
 export async function getPaymentContent(): Promise<PaymentCopy> {
   await connection();
   const existing = await prisma.paymentContent.findUnique({ where: { id: 1 } });
-  if (existing) return clipPayment(existing);
+  if (existing) return readyCopy(existing);
   try {
     const created = await prisma.paymentContent.create({ data: { id: 1, ...paymentDefaults } });
-    return clipPayment(created);
+    return readyCopy(created);
   } catch {
     const again = await prisma.paymentContent.findUnique({ where: { id: 1 } });
-    return clipPayment(again ?? paymentDefaults);
+    return readyCopy(again ?? paymentDefaults);
   }
 }

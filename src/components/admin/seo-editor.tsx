@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { saveSeo } from "@/app/actions/admin";
+import { mediaSrc } from "@/lib/media-path";
 
 export type SeoPageDraft = {
   path: string;
@@ -121,7 +122,7 @@ function SeoForm({ page, images }: { page: SeoPageDraft; images: string[] }) {
       </label>
       {ogImage ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={ogImage} alt="" className="h-28 w-48 rounded-lg object-cover" />
+        <img src={mediaSrc(ogImage)} alt="" className="h-28 w-48 rounded-lg object-cover" />
       ) : (
         <p className="text-sm text-muted">No share image yet.</p>
       )}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { connection } from "next/server";
 import { prisma } from "@/lib/db";
+import { mediaSrc } from "@/lib/media-path";
 
 export type SeoDraft = {
   path: string;
@@ -23,14 +24,18 @@ type PackageSeo = {
 };
 
 export async function siteOrigin() {
+  const configured = process.env.SITE_URL?.trim().replace(/\/$/, "");
+  if (configured) return configured;
   const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
-  const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") || host.startsWith("127.") ? "http" : "https");
+  const forwarded = h.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const host = forwarded || h.get("host") || "localhost:3000";
+  const proto = h.get("x-forwarded-proto")?.split(",")[0]?.trim() || (host.startsWith("localhost") || host.startsWith("127.") ? "http" : "https");
   return `${proto}://${host}`;
 }
 
 export function seoMetadata(row: Pick<SeoDraft, "path" | "metaTitle" | "metaKeywords" | "metaDescription" | "ogImage">, siteName: string): Metadata {
-  const images = row.ogImage ? [{ url: row.ogImage, alt: row.metaTitle }] : undefined;
+  const image = row.ogImage ? mediaSrc(row.ogImage) : "";
+  const images = image ? [{ url: image, alt: row.metaTitle }] : undefined;
   return {
     title: { absolute: row.metaTitle },
     description: row.metaDescription,
@@ -48,7 +53,7 @@ export function seoMetadata(row: Pick<SeoDraft, "path" | "metaTitle" | "metaKeyw
       card: "summary_large_image",
       title: row.metaTitle,
       description: row.metaDescription,
-      images: row.ogImage ? [row.ogImage] : undefined,
+      images: image ? [image] : undefined,
     },
   };
 }

@@ -29,9 +29,7 @@ export function mediaDir() {
   return path.join(process.cwd(), "public", "media");
 }
 
-export function mediaPath(filename: string) {
-  return `/media/${filename}`;
-}
+export { mediaPath, mediaSrc } from "@/lib/media-path";
 
 export class MediaError extends Error {}
 

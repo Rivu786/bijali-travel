@@ -1,9 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export function MediaUrl({ url }: { url: string }) {
+export function MediaUrl({ path }: { path: string }) {
+  const [url, setUrl] = useState(path);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    setUrl(`${window.location.origin}${path}`);
+  }, [path]);
 
   return (
     <div className="flex gap-2">

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { savePayment } from "@/app/actions/admin";
+import { mediaSrc } from "@/lib/media-path";
 import type { PaymentCopy } from "@/lib/payment-copy";
 
 export function PaymentEditor({ content, images }: { content: PaymentCopy; images: string[] }) {
@@ -50,7 +51,7 @@ export function PaymentEditor({ content, images }: { content: PaymentCopy; image
         </label>
         {qrImage ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={qrImage} alt="" className="h-64 w-64 rounded-lg bg-white object-contain" />
+          <img src={mediaSrc(qrImage)} alt="" className="h-64 w-64 rounded-lg bg-white object-contain" />
         ) : (
           <p className="text-sm text-muted">No QR image yet. The payment page shows a placeholder until you add one.</p>
         )}

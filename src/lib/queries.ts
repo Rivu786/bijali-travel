@@ -1,6 +1,7 @@
 import { connection } from "next/server";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { mediaSrc } from "@/lib/media-path";
 import { tierLabel } from "@/lib/format";
 import type { NavGroup, PackageTagSlug, SiteProfile, TourPackage } from "@/lib/types";
 
@@ -34,8 +35,8 @@ function mapPackage(row: PackageRow): TourPackage {
     rating: Number(row.rating),
     reviews: row.reviewCount,
     summary: row.summary,
-    image: row.imageUrl,
-    gallery: row.gallery.map((item) => item.imageUrl),
+    image: mediaSrc(row.imageUrl),
+    gallery: row.gallery.map((item) => mediaSrc(item.imageUrl)),
     latestBadge: row.latestBadge,
     tags: row.tags.map((item) => item.tag.slug as PackageTagSlug),
     createdAt: row.createdAt.toISOString(),
@@ -49,7 +50,7 @@ function mapPackage(row: PackageRow): TourPackage {
     stays: row.stays.map((stay) => ({
       name: stay.name,
       place: stay.place,
-      image: stay.imageUrl || row.imageUrl,
+      image: mediaSrc(stay.imageUrl || row.imageUrl),
       category: stay.category,
     })),
   };
@@ -70,15 +71,15 @@ export async function getSiteProfile(): Promise<SiteProfile> {
     phoneAlt: row.phoneAlt,
     phoneTel: row.phoneTel,
     whatsapp: row.whatsapp,
-    logoUrl: row.logoUrl,
+    logoUrl: mediaSrc(row.logoUrl),
     heroEyebrow: row.heroEyebrow,
     heroTitle: row.heroTitle,
     heroSubtitle: row.heroSubtitle,
-    heroImage: row.heroImage,
+    heroImage: mediaSrc(row.heroImage),
     advisorEyebrow: row.advisorEyebrow,
     advisorTitle: row.advisorTitle,
     advisorBody: row.advisorBody,
-    advisorImage: row.advisorImage,
+    advisorImage: mediaSrc(row.advisorImage),
     footerBlurb: row.footerBlurb,
     subscribeEyebrow: row.subscribeEyebrow,
     subscribeTitle: row.subscribeTitle,
@@ -98,8 +99,21 @@ export async function getHomeContent() {
   const badges = await prisma.footerBadge.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } });
   const partners = await prisma.partner.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } });
   const placements = await prisma.homePlacement.findMany({ orderBy: { sortOrder: "asc" } });
-  const section = Object.fromEntries(sections.map((item) => [item.slug, item]));
-  return { section, features, steps, perks, points, faqs, testimonials, badges, partners, placements };
+  const section = Object.fromEntries(
+    sections.map((item) => [item.slug, { ...item, imageUrl: item.imageUrl ? mediaSrc(item.imageUrl) : item.imageUrl }]),
+  );
+  return {
+    section,
+    features,
+    steps,
+    perks,
+    points,
+    faqs,
+    testimonials: testimonials.map((item) => ({ ...item, imageUrl: item.imageUrl ? mediaSrc(item.imageUrl) : item.imageUrl })),
+    badges,
+    partners: partners.map((item) => ({ ...item, logoUrl: item.logoUrl ? mediaSrc(item.logoUrl) : item.logoUrl })),
+    placements,
+  };
 }
 
 export function pickPlaced(

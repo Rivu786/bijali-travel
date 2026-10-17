@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Icon } from "@/components/icon";
+import { mediaSrc } from "@/lib/media-path";
 import { paymentLines, type PaymentCopy } from "@/lib/payment-copy";
 
 export function PaymentForm({
@@ -94,7 +95,7 @@ export function PaymentForm({
           <div className="mx-auto mb-6 flex aspect-square w-full max-w-[360px] items-center justify-center overflow-hidden rounded-xl bg-white p-3">
             {copy.qrImage ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={copy.qrImage} alt="Payment QR code" className="h-full w-full object-contain" />
+              <img src={mediaSrc(copy.qrImage)} alt="Payment QR code" className="h-full w-full object-contain" />
             ) : (
               <Icon name="qr_code_2" className="!text-[200px] text-ink" />
             )}
