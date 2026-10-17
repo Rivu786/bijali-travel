@@ -332,5 +332,6 @@ model MediaAsset {
   originalName String   @db.VarChar(255)
   mimeType     String   @db.VarChar(120)
   size         Int
+  bytes        Bytes?   @db.LongBlob
   createdAt    DateTime @default(now())
 }
