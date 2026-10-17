@@ -36,7 +36,7 @@ export function HomepageJump({
     let frame = 0;
     const onScroll = () => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(pick);
+      frame = requestAnimationFrame(() => pick());
     };
     root?.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("scroll", onScroll, { passive: true });

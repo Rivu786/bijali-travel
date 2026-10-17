@@ -39,7 +39,7 @@ export function PackageBrowser({
   const [category, setCategory] = useState(
     categories.includes(initialCategory as PackageCategory) ? (initialCategory as PackageCategory) : "All",
   );
-  const [tag, setTag] = useState(
+  const [tag, setTag] = useState<PackageTagSlug | "All">(
     tags.includes(initialTag as PackageTagSlug) ? (initialTag as PackageTagSlug) : "All",
   );
   const [tier, setTier] = useState<PackageTier | "All">(

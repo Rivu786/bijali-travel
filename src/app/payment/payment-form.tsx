@@ -51,7 +51,7 @@ export function PaymentForm({
           </label>
           <label className="text-sm font-semibold">
             Amount transferred
-            <input className="input mt-1" required placeholder={formatPrice(tour.price)} />
+            <input className="input mt-1" required placeholder={priceLabel || "Amount"} />
           </label>
           <label className="text-sm font-semibold">
             UTR / UPI reference
