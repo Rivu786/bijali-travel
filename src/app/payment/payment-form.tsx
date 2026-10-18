@@ -1,14 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useMemo, useState } from "react";
+import { submitPayment } from "@/app/actions/public";
 import { Icon } from "@/components/icon";
 import { mediaSrc } from "@/lib/media-path";
 import { paymentLines, type PaymentCopy } from "@/lib/payment-copy";
 
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+] as const;
+
+function yearOptions() {
+  const start = new Date().getFullYear();
+  return Array.from({ length: 12 }, (_, i) => start + i);
+}
+
 export function PaymentForm({ copy }: { copy: PaymentCopy }) {
-  const [done, setDone] = useState(false);
-  const steps = paymentLines(copy.steps);
+  const [state, action, pending] = useActionState(submitPayment, { ok: false, message: "" });
   const instructions = paymentLines(copy.instructions);
+  const years = useMemo(() => yearOptions(), []);
+  const now = new Date();
+  const [monthName, setMonthName] = useState<string>(MONTHS[now.getMonth()]);
+  const [year, setYear] = useState(String(years[0]));
   const bank = [
     [copy.accountNameLabel, copy.accountName],
     [copy.bankLabel, copy.bankName],
@@ -19,19 +43,66 @@ export function PaymentForm({ copy }: { copy: PaymentCopy }) {
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-      <form
-        className="rounded-xl bg-white p-8 shadow-sm"
-        onSubmit={(event) => {
-          event.preventDefault();
-          setDone(true);
-        }}
-      >
+      <form className="rounded-xl bg-white p-8 shadow-sm" action={action}>
+        <input type="hidden" name="month" value={`${monthName} ${year}`} />
+        <input
+          type="text"
+          name="website_url"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          className="absolute left-[-10000px] h-0 w-0 overflow-hidden opacity-0"
+          defaultValue=""
+        />
         <h2 className="mb-6 text-xl font-bold">{copy.formTitle}</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="text-sm font-semibold sm:col-span-2">
             {copy.journeyLabel}
-            <input className="input mt-1" required name="destination" autoComplete="off" placeholder="Destination" />
+            <input
+              className="input mt-1"
+              required
+              name="destination"
+              autoComplete="off"
+              placeholder="Destination"
+            />
           </label>
+          <label className="text-sm font-semibold">
+            Package tier
+            <select className="input mt-1 cursor-pointer" name="tier" defaultValue="Deluxe">
+              <option>Standard</option>
+              <option>Deluxe</option>
+              <option>Super Deluxe</option>
+            </select>
+          </label>
+          <div className="text-sm font-semibold">
+            Preferred month
+            <div className="mt-1 grid grid-cols-2 gap-2">
+              <select
+                className="input cursor-pointer"
+                value={monthName}
+                onChange={(e) => setMonthName(e.target.value)}
+                aria-label="Preferred month"
+              >
+                {MONTHS.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="input cursor-pointer"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                aria-label="Preferred year"
+              >
+                {years.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
           <label className="text-sm font-semibold">
             {copy.guestLabel}
             <input className="input mt-1" required name="name" autoComplete="name" />
@@ -50,25 +121,29 @@ export function PaymentForm({ copy }: { copy: PaymentCopy }) {
           </label>
           <label className="text-sm font-semibold">
             {copy.amountLabel}
-            <input className="input mt-1" required name="amount" inputMode="decimal" placeholder="₹" autoComplete="off" />
+            <input
+              className="input mt-1"
+              required
+              name="amount"
+              inputMode="decimal"
+              placeholder="₹"
+              autoComplete="off"
+            />
           </label>
-          <label className="text-sm font-semibold">
+          <label className="text-sm font-semibold sm:col-span-2">
             {copy.referenceLabel}
             <input className="input mt-1" required name="utr" autoComplete="off" />
           </label>
         </div>
-        <label className="mt-4 block text-sm font-semibold">
-          {copy.uploadLabel}
-          <input className="mt-2 block w-full text-sm" type="file" accept="image/*" />
-        </label>
         <button
           type="submit"
-          className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-cyan py-3 font-semibold text-white"
+          disabled={pending}
+          className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-cyan py-3 font-semibold text-white disabled:opacity-60"
         >
           <Icon name="verified" /> {copy.submitLabel}
         </button>
-        {done ? (
-          <p className="mt-4 rounded-lg bg-surface-low p-3 text-sm text-secondary">{copy.successMessage}</p>
+        {state.message ? (
+          <p className="mt-4 rounded-lg bg-surface-low p-3 text-sm text-secondary">{state.message}</p>
         ) : null}
         <p className="mt-6 flex items-center gap-2 text-xs text-muted">
           <Icon name="lock" className="text-[16px] text-cyan" /> {copy.privacyNote}

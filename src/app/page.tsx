@@ -166,7 +166,7 @@ export default async function Home() {
               </div>
             </div>
             <div className="rounded-xl bg-surface-lowest p-8 text-on-surface shadow-xl lg:col-span-7">
-              <InquiryForm />
+              <InquiryForm page="/" />
             </div>
           </div>
         </div>

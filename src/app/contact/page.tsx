@@ -40,7 +40,7 @@ export default function ContactPage() {
         </ul>
       </div>
       <div className="rounded-xl bg-white p-8 shadow-sm">
-        <InquiryForm />
+        <InquiryForm page="/contact" />
       </div>
     </div>
   );

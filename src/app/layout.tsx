@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { siteOrigin } from "@/lib/seo";
+import { FloatingInquiry } from "@/components/floating-inquiry";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import {
@@ -74,6 +75,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             body: site.subscribeBody,
           }}
         />
+        <FloatingInquiry />
       </body>
     </html>
   );
