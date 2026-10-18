@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { submitLeadTo1inall, submitPaymentLeadTo1inall } from "@/lib/leads";
+import { submitLeadTo1inall, submitPaymentFormTo1inall } from "@/lib/leads";
 
 /** Honeypot field name — avoid website/url so browsers do not autofill it. */
 const HONEYPOT = "company_fax";
@@ -93,27 +93,29 @@ export async function submitPayment(_prev: { ok: boolean; message: string }, for
     return { ok: false, message: "Please complete every required field." };
   }
 
-  const amountTransferred = [
-    amount,
-    utr ? `UTR: ${utr}` : "",
+  const message = [
+    "Payment form submission",
     destination ? `Destination: ${destination}` : "",
+    packageTier ? `Package tier: ${packageTier}` : "",
+    preferredMonth ? `Preferred month: ${preferredMonth}` : "",
+    travelDate ? `Travel date: ${travelDate}` : "",
+    amount ? `Amount transferred: ${amount}` : "",
+    utr ? `UTR: ${utr}` : "",
   ]
     .filter(Boolean)
     .join(" | ");
 
   try {
-    await submitPaymentLeadTo1inall({
-      packageTier: packageTier || "—",
-      preferredMonth: preferredMonth || "—",
-      guestName,
-      mobile,
+    // Form F-20261018-3262: submission + email only (lead creation disabled on 1inall).
+    await submitPaymentFormTo1inall({
+      name: guestName,
       email,
-      travelDate,
-      amountTransferred,
+      phone: mobile,
+      message,
       pagePath: "/payment",
     });
   } catch (error) {
-    console.error("[1inall] payment sync failed", error);
+    console.error("[1inall] payment form sync failed", error);
     return {
       ok: false,
       message: "Could not save payment request. Please try again or contact support.",

@@ -21,14 +21,12 @@ export type InquiryLeadPayload = {
   pagePath?: string;
 };
 
-export type PaymentLeadPayload = {
-  packageTier: string;
-  preferredMonth: string;
-  guestName: string;
-  mobile: string;
+/** Payment form F-20261018-3262 — form submission / email only (not lead-creating on 1inall). */
+export type PaymentFormPayload = {
+  name: string;
   email: string;
-  travelDate: string;
-  amountTransferred: string;
+  phone: string;
+  message: string;
   pagePath?: string;
 };
 
@@ -106,18 +104,16 @@ export async function submitLeadTo1inall(payload: InquiryLeadPayload): Promise<v
   );
 }
 
-export async function submitPaymentLeadTo1inall(payload: PaymentLeadPayload): Promise<void> {
+export async function submitPaymentFormTo1inall(payload: PaymentFormPayload): Promise<void> {
   const formCode = process.env.INALL_PAYMENT_FORM_CODE?.trim() || DEFAULT_PAYMENT_FORM;
+  // Documented shape for F-20261018-3262: name, email, phone, message (+ website_url honeypot).
   await postTo1inall(
     formCode,
     {
-      "package tire": payload.packageTier,
-      "Prefered month": payload.preferredMonth,
-      "Guest name": payload.guestName,
-      Mobile: payload.mobile,
-      Email: payload.email,
-      "Travel date": payload.travelDate,
-      "Amount transferred": payload.amountTransferred,
+      name: payload.name,
+      email: payload.email,
+      phone: payload.phone,
+      message: payload.message,
     },
     payload.pagePath,
   );
