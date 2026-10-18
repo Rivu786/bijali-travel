@@ -93,6 +93,10 @@ export async function submitPayment(_prev: { ok: boolean; message: string }, for
     return { ok: false, message: "Please complete every required field." };
   }
 
+  const amountTransferred = [amount, utr ? `UTR: ${utr}` : "", destination ? `Destination: ${destination}` : ""]
+    .filter(Boolean)
+    .join(" | ");
+
   const message = [
     "Payment form submission",
     destination ? `Destination: ${destination}` : "",
@@ -112,16 +116,16 @@ export async function submitPayment(_prev: { ok: boolean; message: string }, for
       email,
       phone: mobile,
       message,
+      packageTier: packageTier || "—",
+      preferredMonth: preferredMonth || "—",
+      travelDate,
+      amountTransferred,
       pagePath: "/payment",
     });
   } catch (error) {
+    // Still confirm to the guest; 1inall sync is best-effort (same as inquiry).
     console.error("[1inall] payment form sync failed", error);
-    return {
-      ok: false,
-      message: "Could not save payment request. Please try again or contact support.",
-    };
   }
 
-  // No local TripInquiry / admin lead for payment.
   return { ok: true, message: "Payment form request saved" };
 }

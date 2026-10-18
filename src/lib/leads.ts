@@ -7,6 +7,8 @@ loadProjectEnv();
 const DEFAULT_LEADS_URL = "https://app.1inalltravel.com/api/leads/submit";
 const DEFAULT_INQUIRY_FORM = "F-20261018-7817";
 const DEFAULT_PAYMENT_FORM = "F-20261018-3262";
+/** Deployment public API key for server-to-server 1inall access (not for browser JS). */
+const DEFAULT_API_KEY = "4Bz9kP2nX7qR8dL3aF1mT5cH6jV0wSgYx";
 
 export type InquiryLeadPayload = {
   tripType: string;
@@ -21,18 +23,21 @@ export type InquiryLeadPayload = {
   pagePath?: string;
 };
 
-/** Payment form F-20261018-3262 — form submission / email only (not lead-creating on 1inall). */
 export type PaymentFormPayload = {
   name: string;
   email: string;
   phone: string;
   message: string;
+  packageTier?: string;
+  preferredMonth?: string;
+  travelDate?: string;
+  amountTransferred?: string;
   pagePath?: string;
 };
 
 async function postTo1inall(formCode: string, data: Record<string, string>, pagePath?: string) {
   loadProjectEnv();
-  const apiKey = process.env.INALL_API_KEY?.trim();
+  const apiKey = process.env.INALL_API_KEY?.trim() || DEFAULT_API_KEY;
   if (!apiKey) {
     throw new Error("Missing INALL_API_KEY");
   }
@@ -91,7 +96,7 @@ async function postTo1inall(formCode: string, data: Record<string, string>, page
   }
 }
 
-/** Home / Contact / floating — form purpose Lead capture (creates leadId). */
+/** Home / Contact / floating — Lead capture form (creates lead). */
 export async function submitLeadTo1inall(payload: InquiryLeadPayload): Promise<void> {
   const formCode = process.env.INALL_FORM_CODE?.trim() || DEFAULT_INQUIRY_FORM;
   const message = [
@@ -108,12 +113,10 @@ export async function submitLeadTo1inall(payload: InquiryLeadPayload): Promise<v
   await postTo1inall(
     formCode,
     {
-      // Documented lead-capture keys
       name: payload.name,
       email: payload.email,
       phone: payload.phone,
       message,
-      // Form builder field labels (F-20261018-7817)
       "Trip Type": payload.tripType,
       Destination: payload.destination,
       Country: payload.country?.trim() || "",
@@ -128,7 +131,7 @@ export async function submitLeadTo1inall(payload: InquiryLeadPayload): Promise<v
   );
 }
 
-/** Payment — same endpoint, form F-20261018-3262 (no lead; email / form submission only). */
+/** Payment — form F-20261018-3262 (no lead; email / form submission only). */
 export async function submitPaymentFormTo1inall(payload: PaymentFormPayload): Promise<void> {
   const formCode = process.env.INALL_PAYMENT_FORM_CODE?.trim() || DEFAULT_PAYMENT_FORM;
   await postTo1inall(
@@ -138,6 +141,13 @@ export async function submitPaymentFormTo1inall(payload: PaymentFormPayload): Pr
       email: payload.email,
       phone: payload.phone,
       message: payload.message,
+      "Guest name": payload.name,
+      Mobile: payload.phone,
+      Email: payload.email,
+      "package tire": payload.packageTier || "",
+      "Prefered month": payload.preferredMonth || "",
+      "Travel date": payload.travelDate || "",
+      "Amount transferred": payload.amountTransferred || "",
     },
     payload.pagePath,
   );
