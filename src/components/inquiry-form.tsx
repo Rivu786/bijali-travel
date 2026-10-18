@@ -37,7 +37,7 @@ export function InquiryForm({ page = "/" }: { page?: string }) {
       <input type="hidden" name="month" value={`${monthName} ${year}`} />
       <input
         type="text"
-        name="website_url"
+        name="company_fax"
         tabIndex={-1}
         autoComplete="off"
         aria-hidden="true"

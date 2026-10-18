@@ -2,10 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { submitLeadTo1inall } from "@/lib/leads";
+import { submitLeadTo1inall, submitPaymentLeadTo1inall } from "@/lib/leads";
+
+/** Honeypot field name — avoid website/url so browsers do not autofill it. */
+const HONEYPOT = "company_fax";
 
 export async function submitInquiry(_prev: { ok: boolean; message: string }, formData: FormData) {
-  const honeypot = String(formData.get("website_url") ?? "").trim();
+  const honeypot = String(formData.get(HONEYPOT) ?? "").trim();
   if (honeypot) {
     return {
       ok: true,
@@ -47,7 +50,7 @@ export async function submitInquiry(_prev: { ok: boolean; message: string }, for
       pagePath,
     });
   } catch (error) {
-    console.error("[1inall] lead sync failed", error);
+    console.error("[1inall] inquiry sync failed", error);
   }
 
   return {
@@ -71,7 +74,7 @@ export async function subscribe(_prev: { ok: boolean; message: string }, formDat
 }
 
 export async function submitPayment(_prev: { ok: boolean; message: string }, formData: FormData) {
-  const honeypot = String(formData.get("website_url") ?? "").trim();
+  const honeypot = String(formData.get(HONEYPOT) ?? "").trim();
   if (honeypot) {
     return { ok: true, message: "Payment form request saved" };
   }
@@ -79,11 +82,42 @@ export async function submitPayment(_prev: { ok: boolean; message: string }, for
   const guestName = String(formData.get("name") ?? "").trim();
   const mobile = String(formData.get("phone") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
+  const travelDate = String(formData.get("date") ?? "").trim();
   const amount = String(formData.get("amount") ?? "").trim();
   const utr = String(formData.get("utr") ?? "").trim();
+  const packageTier = String(formData.get("tier") ?? "").trim();
+  const preferredMonth = String(formData.get("month") ?? "").trim();
+  const destination = String(formData.get("destination") ?? "").trim();
 
   if (!guestName || !mobile || !email || !amount || !utr) {
     return { ok: false, message: "Please complete every required field." };
+  }
+
+  const amountTransferred = [
+    amount,
+    utr ? `UTR: ${utr}` : "",
+    destination ? `Destination: ${destination}` : "",
+  ]
+    .filter(Boolean)
+    .join(" | ");
+
+  try {
+    await submitPaymentLeadTo1inall({
+      packageTier: packageTier || "—",
+      preferredMonth: preferredMonth || "—",
+      guestName,
+      mobile,
+      email,
+      travelDate,
+      amountTransferred,
+      pagePath: "/payment",
+    });
+  } catch (error) {
+    console.error("[1inall] payment sync failed", error);
+    return {
+      ok: false,
+      message: "Could not save payment request. Please try again or contact support.",
+    };
   }
 
   return { ok: true, message: "Payment form request saved" };
