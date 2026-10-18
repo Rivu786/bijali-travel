@@ -225,7 +225,7 @@ export async function savePackage(formData: FormData) {
     originalPrice: String(formData.get("originalPrice") ?? "")
       ? Number(formData.get("originalPrice"))
       : null,
-    currency: String(formData.get("currency") ?? "INR").replace(/^USD$/i, "INR") || "INR",
+    currency: "INR",
     rating: Number(formData.get("rating") || 0),
     reviewCount: Number(formData.get("reviewCount") || 0),
     summary: String(formData.get("summary") ?? ""),

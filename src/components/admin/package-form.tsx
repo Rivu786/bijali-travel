@@ -67,9 +67,9 @@ export function PackageForm({
         <Field label="Duration" name="duration" defaultValue={tour?.duration} />
         <Field label="Nights" name="nights" defaultValue={String(tour?.nights ?? 0)} />
         <Field label="Days" name="days" defaultValue={String(tour?.days ?? 0)} />
-        <Field label="Price" name="price" defaultValue={tour ? String(tour.price) : ""} />
-        <Field label="Original price" name="originalPrice" defaultValue={tour?.originalPrice ? String(tour.originalPrice) : ""} />
-        <Field label="Currency" name="currency" defaultValue={tour?.currency === "USD" ? "INR" : (tour?.currency ?? "INR")} />
+        <Field label="Price (₹)" name="price" defaultValue={tour ? String(tour.price) : ""} />
+        <Field label="Original price (₹)" name="originalPrice" defaultValue={tour?.originalPrice ? String(tour.originalPrice) : ""} />
+        <input type="hidden" name="currency" value="INR" />
         <Field label="Rating" name="rating" defaultValue={tour ? String(tour.rating) : "4.8"} />
         <Field label="Reviews" name="reviewCount" defaultValue={String(tour?.reviewCount ?? 0)} />
         <Field label="Latest badge" name="latestBadge" defaultValue={tour?.latestBadge ?? ""} />

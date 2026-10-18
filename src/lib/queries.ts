@@ -32,7 +32,7 @@ function mapPackage(row: PackageRow): TourPackage {
     tier: tierLabel(row.tier),
     price: Number(row.price),
     originalPrice: row.originalPrice == null ? undefined : Number(row.originalPrice),
-    currency: row.currency,
+    currency: row.currency?.toUpperCase() === "USD" ? "INR" : row.currency || "INR",
     rating: Number(row.rating),
     reviews: row.reviewCount,
     summary: row.summary,

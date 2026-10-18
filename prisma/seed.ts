@@ -102,7 +102,7 @@ const weekendPackages = [
   tier: "Deluxe" as const,
   price: 249,
   originalPrice: 320,
-  currency: "USD",
+  currency: "INR",
   rating: 4.7,
   reviews: 28,
   gallery: [item.image, heroImage],
