@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Icon } from "@/components/icon";
 import { PackageCard } from "@/components/package-card";
 import { formatPrice, stayCategoryLabel } from "@/lib/format";
-import { getPackageBySlug, getPublishedPackages } from "@/lib/queries";
+import { getPackageBySlug, getPublishedPackages, relatedPackages } from "@/lib/queries";
 import { pageMetadata } from "@/lib/seo";
 
 export const instant = false;
@@ -37,7 +37,7 @@ export default async function PackageDetailsPage({
   const [tour, packages] = await Promise.all([getPackageBySlug(slug), getPublishedPackages()]);
   if (!tour) notFound();
 
-  const related = packages.filter((item) => item.slug !== tour.slug).slice(0, 3);
+  const related = relatedPackages(tour, packages, 3);
 
   return (
     <div className="bg-surface pb-24">

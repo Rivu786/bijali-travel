@@ -4,7 +4,7 @@ import { PackageBrowser } from "@/app/packages/package-browser";
 import { getPublishedPackages, getHomeContent, getSiteProfile, pickPlaced } from "@/lib/queries";
 import { pageMetadata } from "@/lib/seo";
 
-export const instant = false;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata() {
   const site = await getSiteProfile();

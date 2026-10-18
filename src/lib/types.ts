@@ -7,6 +7,7 @@ export type TourPackage = {
   slug: string;
   title: string;
   category: PackageCategory;
+  groupId: number | null;
   region: string;
   state: string | null;
   duration: string;

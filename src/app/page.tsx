@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FaqList } from "@/components/faq-list";
+import { HeroSearch } from "@/components/hero-search";
 import { Icon } from "@/components/icon";
 import { InquiryForm } from "@/components/inquiry-form";
 import { PackageCard } from "@/components/package-card";
@@ -72,53 +73,7 @@ export default async function Home() {
           </div>
           <h1 className="display mb-4 max-w-4xl text-white">{site.heroTitle}</h1>
           <p className="mb-12 max-w-2xl text-lg text-slate-200">{site.heroSubtitle}</p>
-          <form
-            action="/packages"
-            className="w-full max-w-5xl rounded-xl bg-white/85 p-4 text-left shadow-xl backdrop-blur-xl md:p-6"
-          >
-            <div className="grid grid-cols-1 items-center gap-4 md:grid-cols-2">
-              <label className="flex flex-col gap-1 rounded-lg bg-surface-low/70 p-2">
-                <span className="eyebrow flex items-center gap-1 font-bold text-secondary">
-                  <Icon name="pin_drop" className="text-[16px]" /> Destination
-                </span>
-                <input
-                  name="q"
-                  className="w-full truncate bg-transparent text-lg font-semibold outline-none"
-                  placeholder="Destination, state, or package name"
-                />
-              </label>
-              <label className="flex flex-col gap-1 rounded-lg bg-surface-low/70 p-2">
-                <span className="eyebrow flex items-center gap-1 font-bold text-secondary">
-                  <Icon name="hotel_class" className="text-[16px]" /> Package Tier
-                </span>
-                <select
-                  name="tier"
-                  className="w-full bg-transparent text-lg font-semibold outline-none"
-                  defaultValue="Deluxe"
-                >
-                  <option value="">All Tiers (Customized)</option>
-                  <option>Standard</option>
-                  <option>Deluxe</option>
-                  <option>Super Deluxe</option>
-                </select>
-              </label>
-            </div>
-            <div className="mt-4 flex flex-col items-center justify-between gap-4 pt-4 sm:flex-row">
-              <div className="flex items-center gap-4 text-sm text-muted">
-                <span className="flex items-center gap-1">
-                  <Icon name="verified" className="text-[16px] text-secondary" /> Zero
-                  booking fees
-                </span>
-                <span className="flex items-center gap-1">
-                  <Icon name="thumb_up" className="text-[16px] text-secondary" /> 100%
-                  Tailor-made
-                </span>
-              </div>
-              <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-cyan px-8 py-3.5 text-sm font-semibold text-white shadow-md sm:w-auto">
-                <Icon name="travel_explore" className="text-[18px]" /> Find My Trip
-              </button>
-            </div>
-          </form>
+          <HeroSearch />
         </div>
       </section>
 

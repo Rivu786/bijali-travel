@@ -39,7 +39,7 @@ export default async function MenusAdmin({
       <div>
         <h1 className="text-3xl font-bold">Menus</h1>
         <p className="mt-1 text-sm text-muted">
-          Name a group, then add the packages that belong under it. Remove takes a package out of that group. A package can sit in one group.
+          Name a group, then use Add to put packages under it. Remove takes a package out of that group. A package can sit in one group.
         </p>
       </div>
       {query.saved ? (
@@ -95,15 +95,20 @@ export default async function MenusAdmin({
             </label>
             <fieldset>
               <legend className="mb-2 text-sm font-semibold">Packages in this group</legend>
-              <p className="mb-3 text-sm text-muted">Add the packages that belong here. You can remove them after the group is saved.</p>
+              <p className="mb-3 text-sm text-muted">
+                Add packages here before saving. If a package is already in another group, choosing it moves it into this new group.
+              </p>
               <PackageAssign
-                packages={packages.filter((item) => item.groupId == null).map((item) => ({ id: item.id, title: item.title }))}
+                packages={packages.map((item) => ({
+                  id: item.id,
+                  title: item.title,
+                  groupId: item.groupId,
+                  groupTitle: item.groupId
+                    ? (groups.find((group) => group.id === item.groupId)?.title ?? "another group")
+                    : null,
+                }))}
                 selectedIds={[]}
-                emptyLabel={
-                  packages.length === 0
-                    ? "Publish a package in this category first."
-                    : "Every published package in this category is already in a group."
-                }
+                emptyLabel="No packages selected yet. Add one below."
               />
             </fieldset>
             <button className="rounded-lg bg-cyan px-4 py-2 text-sm font-semibold text-white focus-visible:ring-2 focus-visible:ring-cyan">
@@ -121,6 +126,7 @@ export default async function MenusAdmin({
               sortOrder={group.sortOrder}
               category={tab}
               packages={packages}
+              groups={groups.map((item) => ({ id: item.id, title: item.title }))}
             />
           ))}
         </>

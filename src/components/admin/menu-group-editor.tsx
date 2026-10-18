@@ -11,6 +11,7 @@ export function MenuGroupEditor({
   sortOrder,
   category,
   packages,
+  groups,
 }: {
   id: number;
   title: string;
@@ -18,9 +19,16 @@ export function MenuGroupEditor({
   sortOrder: number;
   category: string;
   packages: { id: number; title: string; groupId: number | null }[];
+  groups: { id: number; title: string }[];
 }) {
+  const groupTitle = new Map(groups.map((group) => [group.id, group.title]));
   const mine = packages.filter((item) => item.groupId === id);
-  const free = packages.filter((item) => item.groupId == null || item.groupId === id);
+  const assignable = packages.map((item) => ({
+    id: item.id,
+    title: item.title,
+    groupId: item.groupId,
+    groupTitle: item.groupId && item.groupId !== id ? (groupTitle.get(item.groupId) ?? "another group") : null,
+  }));
 
   return (
     <form action={saveMenuGroup} className="space-y-3 rounded-xl bg-white p-6 shadow-sm">
@@ -51,10 +59,13 @@ export function MenuGroupEditor({
       </div>
       <fieldset>
         <legend className="mb-2 text-sm font-semibold">Packages in {title}</legend>
-        <p className="mb-3 text-sm text-muted">Add or remove packages here, then save. A package can belong to one group.</p>
+        <p className="mb-3 text-sm text-muted">
+          Remove takes a package out of this group. Use the select box below the list to add one, then click Save.
+        </p>
         <PackageAssign
-          packages={free.map((item) => ({ id: item.id, title: item.title }))}
+          packages={assignable}
           selectedIds={mine.map((item) => item.id)}
+          emptyLabel="No packages in this group yet. Add one below."
         />
       </fieldset>
       <button className="rounded-lg bg-cyan px-4 py-2 text-sm font-semibold text-white focus-visible:ring-2 focus-visible:ring-cyan">

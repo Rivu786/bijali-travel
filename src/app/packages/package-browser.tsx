@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Icon } from "@/components/icon";
 import { PackageCard } from "@/components/package-card";
 import type { PackageCategory, PackageTagSlug, PackageTier, TourPackage } from "@/lib/types";
@@ -23,6 +24,36 @@ const tagName: Record<string, string> = {
   "high-demand": "High demand",
 };
 
+function parseTier(value?: string): PackageTier | "All" {
+  return tiers.includes(value as PackageTier) ? (value as PackageTier) : "All";
+}
+
+function parseCategory(value?: string): PackageCategory | "All" {
+  return categories.includes(value as PackageCategory) ? (value as PackageCategory) : "All";
+}
+
+function parseTag(value?: string): PackageTagSlug | "All" {
+  return tags.includes(value as PackageTagSlug) ? (value as PackageTagSlug) : "All";
+}
+
+function matchesQuery(tour: TourPackage, query: string) {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return true;
+  const haystack = [
+    tour.title,
+    tour.location,
+    tour.state ?? "",
+    tour.region,
+    tour.summary,
+    tour.category,
+    tour.tier,
+    tour.duration,
+  ]
+    .join(" ")
+    .toLowerCase();
+  return needle.split(/\s+/).every((word) => haystack.includes(word));
+}
+
 export function PackageBrowser({
   packages,
   initialTier,
@@ -36,26 +67,60 @@ export function PackageBrowser({
   initialCategory?: string;
   initialTag?: string;
 }) {
-  const [category, setCategory] = useState(
-    categories.includes(initialCategory as PackageCategory) ? (initialCategory as PackageCategory) : "All",
-  );
-  const [tag, setTag] = useState<PackageTagSlug | "All">(
-    tags.includes(initialTag as PackageTagSlug) ? (initialTag as PackageTagSlug) : "All",
-  );
-  const [tier, setTier] = useState<PackageTier | "All">(
-    tiers.includes(initialTier as PackageTier) ? (initialTier as PackageTier) : "All",
-  );
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [category, setCategory] = useState(parseCategory(initialCategory));
+  const [tag, setTag] = useState(parseTag(initialTag));
+  const [tier, setTier] = useState(parseTier(initialTier));
   const [q, setQ] = useState(initialQuery || "");
   const [sort, setSort] = useState("rating");
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const filtersRef = useRef({ q, tier, category, tag });
+  filtersRef.current = { q, tier, category, tag };
+
+  useEffect(() => {
+    setCategory(parseCategory(initialCategory));
+    setTag(parseTag(initialTag));
+    setTier(parseTier(initialTier));
+    setQ(initialQuery || "");
+  }, [initialCategory, initialTag, initialTier, initialQuery]);
+
+  useEffect(() => {
+    return () => {
+      if (searchTimer.current) clearTimeout(searchTimer.current);
+    };
+  }, []);
+
+  function syncUrl(next: {
+    q?: string;
+    tier?: PackageTier | "All";
+    category?: PackageCategory | "All";
+    tag?: PackageTagSlug | "All";
+  }) {
+    const current = filtersRef.current;
+    const params = new URLSearchParams();
+    const query = (next.q ?? current.q).trim();
+    const nextTier = next.tier ?? current.tier;
+    const nextCategory = next.category ?? current.category;
+    const nextTag = next.tag ?? current.tag;
+    if (query) params.set("q", query);
+    if (nextTier !== "All") params.set("tier", nextTier);
+    if (nextCategory !== "All") params.set("category", nextCategory);
+    if (nextTag !== "All") params.set("tag", nextTag);
+    const href = params.toString() ? `/packages?${params.toString()}` : "/packages";
+    startTransition(() => router.replace(href, { scroll: false }));
+  }
+
+  function scheduleSearchSync(value: string) {
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => syncUrl({ q: value }), 250);
+  }
 
   const matched = useMemo(() => {
-    const query = q.trim().toLowerCase();
     const list = packages.filter((tour) => {
       if (category !== "All" && tour.category !== category) return false;
       if (tag !== "All" && !tour.tags.includes(tag)) return false;
-      if (!query) return true;
-      const haystack = `${tour.title} ${tour.location} ${tour.state ?? ""} ${tour.region} ${tour.summary}`.toLowerCase();
-      return haystack.includes(query);
+      return matchesQuery(tour, q);
     });
     const sorted = [...list].sort((a, b) => {
       if (sort === "price-asc") return a.price - b.price;
@@ -84,8 +149,13 @@ export function PackageBrowser({
             <input
               className="input pl-10"
               value={q}
-              onChange={(e) => setQ(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setQ(value);
+                scheduleSearchSync(value);
+              }}
               placeholder="Destination, state, or name"
+              aria-label="Search packages"
             />
           </div>
         </label>
@@ -96,7 +166,10 @@ export function PackageBrowser({
               <button
                 key={item}
                 type="button"
-                onClick={() => setCategory(item)}
+                onClick={() => {
+                  setCategory(item);
+                  syncUrl({ category: item });
+                }}
                 className={`rounded-lg px-3 py-2 text-left text-sm ${
                   category === item ? "bg-cyan text-white" : "bg-surface-low hover:bg-surface-high"
                 }`}
@@ -113,7 +186,10 @@ export function PackageBrowser({
               <button
                 key={item}
                 type="button"
-                onClick={() => setTag(item)}
+                onClick={() => {
+                  setTag(item);
+                  syncUrl({ tag: item });
+                }}
                 className={`rounded-lg px-3 py-2 text-left text-sm ${
                   tag === item ? "bg-cyan text-white" : "bg-surface-low hover:bg-surface-high"
                 }`}
@@ -130,7 +206,10 @@ export function PackageBrowser({
               <button
                 key={item}
                 type="button"
-                onClick={() => setTier(item)}
+                onClick={() => {
+                  setTier(item);
+                  syncUrl({ tier: item });
+                }}
                 className={`rounded-lg px-3 py-2 text-left text-sm ${
                   tier === item ? "bg-cyan text-white" : "bg-surface-low hover:bg-surface-high"
                 }`}
@@ -142,10 +221,36 @@ export function PackageBrowser({
         </div>
       </aside>
 
-      <div>
+      <div className={pending ? "opacity-80 transition-opacity" : undefined}>
+        {(q.trim() || tier !== "All" || category !== "All" || tag !== "All") && (
+          <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm shadow-sm">
+            <span className="font-semibold text-on-surface">Active search:</span>
+            {q.trim() ? <span className="rounded-full bg-surface-low px-3 py-1">“{q.trim()}”</span> : null}
+            {tier !== "All" ? <span className="rounded-full bg-surface-low px-3 py-1">{tier}</span> : null}
+            {category !== "All" ? (
+              <span className="rounded-full bg-surface-low px-3 py-1">{categoryName[category]}</span>
+            ) : null}
+            {tag !== "All" ? <span className="rounded-full bg-surface-low px-3 py-1">{tagName[tag]}</span> : null}
+            <button
+              type="button"
+              className="ml-auto text-sm font-semibold text-cyan hover:underline"
+              onClick={() => {
+                setQ("");
+                setTier("All");
+                setCategory("All");
+                setTag("All");
+                startTransition(() => router.replace("/packages", { scroll: false }));
+              }}
+            >
+              Clear
+            </button>
+          </div>
+        )}
         <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <p className="text-sm text-muted">
-            Showing {matched.preferred.length + matched.also.length} of {packages.length} packages
+            Showing {matched.preferred.length}
+            {matched.also.length > 0 ? ` (+${matched.also.length} other tiers)` : ""} of {packages.length}{" "}
+            packages
           </p>
           <select
             className="input h-10 w-full sm:w-56"

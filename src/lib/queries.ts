@@ -22,6 +22,7 @@ function mapPackage(row: PackageRow): TourPackage {
     slug: row.slug,
     title: row.title,
     category: row.category,
+    groupId: row.groupId,
     region: row.group?.title ?? row.location,
     state: row.state,
     duration: row.duration,
@@ -217,6 +218,15 @@ export function recentPackages(packages: TourPackage[]) {
     .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
   if (tagged.length > 0) return tagged.slice(0, 3);
   return [...packages].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)).slice(0, 3);
+}
+
+export function relatedPackages(tour: TourPackage, packages: TourPackage[], limit = 3) {
+  const others = packages.filter((item) => item.id !== tour.id);
+  const sameGroup = tour.groupId
+    ? others.filter((item) => item.groupId === tour.groupId)
+    : [];
+  const otherGroups = others.filter((item) => !tour.groupId || item.groupId !== tour.groupId);
+  return [...sameGroup, ...otherGroups].slice(0, limit);
 }
 
 export function popularPackages(packages: TourPackage[]) {
