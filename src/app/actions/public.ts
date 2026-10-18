@@ -106,7 +106,7 @@ export async function submitPayment(_prev: { ok: boolean; message: string }, for
     .join(" | ");
 
   try {
-    // Form F-20261018-3262: submission + email only (lead creation disabled on 1inall).
+    // Payment form does NOT create a lead on 1inall — email / form submission only.
     await submitPaymentFormTo1inall({
       name: guestName,
       email,
@@ -122,5 +122,6 @@ export async function submitPayment(_prev: { ok: boolean; message: string }, for
     };
   }
 
+  // No local TripInquiry / admin lead for payment.
   return { ok: true, message: "Payment form request saved" };
 }

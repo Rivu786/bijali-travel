@@ -69,10 +69,16 @@ async function postTo1inall(formCode: string, data: Record<string, string>, page
   });
 
   const text = await response.text().catch(() => "");
-  type LeadResponse = { success?: boolean; error?: string; leadId?: string };
-  let result: LeadResponse | null = null;
+  type ApiResponse = {
+    success?: boolean;
+    error?: string;
+    leadId?: string;
+    referenceId?: string;
+    submissionId?: string;
+  };
+  let result: ApiResponse | null = null;
   try {
-    result = text ? (JSON.parse(text) as LeadResponse) : null;
+    result = text ? (JSON.parse(text) as ApiResponse) : null;
   } catch {
     result = null;
   }
@@ -85,11 +91,29 @@ async function postTo1inall(formCode: string, data: Record<string, string>, page
   }
 }
 
+/** Home / Contact / floating — form purpose Lead capture (creates leadId). */
 export async function submitLeadTo1inall(payload: InquiryLeadPayload): Promise<void> {
   const formCode = process.env.INALL_FORM_CODE?.trim() || DEFAULT_INQUIRY_FORM;
+  const message = [
+    `Trip Type: ${payload.tripType}`,
+    `Destination: ${payload.destination}`,
+    payload.country ? `Country: ${payload.country}` : "",
+    payload.state ? `State/Province: ${payload.state}` : "",
+    `Package tier: ${payload.packageTier}`,
+    `Preferred month: ${payload.preferredMonth}`,
+  ]
+    .filter(Boolean)
+    .join(" | ");
+
   await postTo1inall(
     formCode,
     {
+      // Documented lead-capture keys
+      name: payload.name,
+      email: payload.email,
+      phone: payload.phone,
+      message,
+      // Form builder field labels (F-20261018-7817)
       "Trip Type": payload.tripType,
       Destination: payload.destination,
       Country: payload.country?.trim() || "",
@@ -104,9 +128,9 @@ export async function submitLeadTo1inall(payload: InquiryLeadPayload): Promise<v
   );
 }
 
+/** Payment — same endpoint, form F-20261018-3262 (no lead; email / form submission only). */
 export async function submitPaymentFormTo1inall(payload: PaymentFormPayload): Promise<void> {
   const formCode = process.env.INALL_PAYMENT_FORM_CODE?.trim() || DEFAULT_PAYMENT_FORM;
-  // Documented shape for F-20261018-3262: name, email, phone, message (+ website_url honeypot).
   await postTo1inall(
     formCode,
     {
