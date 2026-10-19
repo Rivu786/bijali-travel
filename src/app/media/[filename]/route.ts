@@ -17,9 +17,11 @@ export async function GET(_request: Request, context: { params: Promise<{ filena
     : await readFile(path.join(mediaDir(), filename)).catch(() => null);
   if (!bytes) return new Response("Not found", { status: 404 });
 
-  return new Response(Buffer.from(bytes), {
+  const body = Buffer.from(bytes);
+  return new Response(body, {
     headers: {
       "Content-Type": row.mimeType,
+      "Content-Length": String(body.byteLength),
       "Cache-Control": "public, max-age=31536000, immutable",
     },
   });

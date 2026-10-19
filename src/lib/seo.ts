@@ -29,22 +29,39 @@ export async function siteOrigin() {
   const h = await headers();
   const forwarded = h.get("x-forwarded-host")?.split(",")[0]?.trim();
   const host = forwarded || h.get("host") || "localhost:3000";
-  const proto = h.get("x-forwarded-proto")?.split(",")[0]?.trim() || (host.startsWith("localhost") || host.startsWith("127.") ? "http" : "https");
+  const proto =
+    h.get("x-forwarded-proto")?.split(",")[0]?.trim() ||
+    (host.startsWith("localhost") || host.startsWith("127.") ? "http" : "https");
   return `${proto}://${host}`;
 }
 
-export function seoMetadata(row: Pick<SeoDraft, "path" | "metaTitle" | "metaKeywords" | "metaDescription" | "ogImage">, siteName: string): Metadata {
-  const image = row.ogImage ? mediaSrc(row.ogImage) : "";
-  const images = image ? [{ url: image, alt: row.metaTitle }] : undefined;
+function absoluteUrl(origin: string, value: string) {
+  const src = mediaSrc(value).trim();
+  if (!src) return "";
+  if (src.startsWith("http://") || src.startsWith("https://")) return src;
+  return `${origin}${src.startsWith("/") ? src : `/${src}`}`;
+}
+
+export async function seoMetadata(
+  row: Pick<SeoDraft, "path" | "metaTitle" | "metaKeywords" | "metaDescription" | "ogImage">,
+  siteName: string,
+): Promise<Metadata> {
+  const origin = await siteOrigin();
+  const image = row.ogImage ? absoluteUrl(origin, row.ogImage) : "";
+  const pageUrl = `${origin}${row.path === "/" ? "" : row.path}`;
+  const images = image
+    ? [{ url: image, width: 1200, height: 630, alt: row.metaTitle }]
+    : undefined;
+
   return {
     title: { absolute: row.metaTitle },
     description: row.metaDescription,
     keywords: row.metaKeywords,
-    alternates: { canonical: row.path },
+    alternates: { canonical: pageUrl },
     openGraph: {
       title: row.metaTitle,
       description: row.metaDescription,
-      url: row.path,
+      url: pageUrl,
       siteName,
       type: "website",
       images,
@@ -164,7 +181,10 @@ export async function ensureSeoCatalog() {
   for (const pkg of packages) {
     await syncPackageSeo(pkg);
   }
-  const keep = new Set<string>([...staticPages.map((page) => page.path), ...packages.map((pkg) => `/packages/${pkg.slug}`)]);
+  const keep = new Set<string>([
+    ...staticPages.map((page) => page.path),
+    ...packages.map((pkg) => `/packages/${pkg.slug}`),
+  ]);
   const rows = await prisma.pageSeo.findMany();
   const stale = rows.filter((row) => !keep.has(row.path)).map((row) => row.id);
   if (stale.length) await prisma.pageSeo.deleteMany({ where: { id: { in: stale } } });

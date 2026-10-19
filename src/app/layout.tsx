@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { mediaSrc } from "@/lib/media-path";
 import { siteOrigin } from "@/lib/seo";
 import { FloatingInquiry } from "@/components/floating-inquiry";
 import { SiteFooter } from "@/components/site-footer";
@@ -23,14 +24,29 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
+  const [origin, site] = await Promise.all([siteOrigin(), getSiteProfile()]);
+  const logo = mediaSrc(site.logoUrl || site.heroImage || "");
+  const iconUrl = logo
+    ? logo.startsWith("http")
+      ? logo
+      : `${origin}${logo.startsWith("/") ? logo : `/${logo}`}`
+    : undefined;
+
   return {
-    metadataBase: new URL(await siteOrigin()),
+    metadataBase: new URL(origin),
     title: {
       default: "Bijali Tours & Travels",
       template: "%s · Bijali Tours & Travels",
     },
     description:
       "Curated national and international tour packages from Bijali Tours & Travels — IATA and Ministry of Tourism certified.",
+    icons: iconUrl
+      ? {
+          icon: [{ url: iconUrl }],
+          shortcut: iconUrl,
+          apple: [{ url: iconUrl }],
+        }
+      : undefined,
   };
 }
 
