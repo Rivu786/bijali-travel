@@ -613,3 +613,35 @@ export async function setInquiryStatus(formData: FormData) {
   if (id) await prisma.tripInquiry.update({ where: { id }, data: { status } });
   revalidatePath("/admin/inquiries");
 }
+
+function normalizeIconName(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_")
+    .replace(/[^a-z0-9_]/g, "")
+    .slice(0, 64);
+}
+
+export async function addCatalogIcon(formData: FormData) {
+  await assertAdmin();
+  const name = normalizeIconName(String(formData.get("name") ?? ""));
+  if (!name) {
+    redirect("/admin/icons?error=name");
+  }
+  await prisma.catalogIcon.upsert({
+    where: { name },
+    create: { name },
+    update: {},
+  });
+  revalidatePath("/admin/icons");
+  redirect("/admin/icons?saved=1");
+}
+
+export async function deleteCatalogIcon(formData: FormData) {
+  await assertAdmin();
+  const id = Number(formData.get("id") || 0);
+  if (id) await prisma.catalogIcon.delete({ where: { id } });
+  revalidatePath("/admin/icons");
+  redirect("/admin/icons?saved=1");
+}

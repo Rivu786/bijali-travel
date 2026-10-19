@@ -28,6 +28,7 @@ function yearOptions() {
 
 export function PaymentForm({ copy }: { copy: PaymentCopy }) {
   const [state, action, pending] = useActionState(submitPayment, { ok: false, message: "" });
+  const [submitted, setSubmitted] = useState(false);
   const instructions = paymentLines(copy.instructions);
   const years = useMemo(() => yearOptions(), []);
   const now = new Date();
@@ -43,7 +44,11 @@ export function PaymentForm({ copy }: { copy: PaymentCopy }) {
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-      <form className="rounded-xl bg-white p-8 shadow-sm" action={action}>
+      <form
+        className="rounded-xl bg-white p-8 shadow-sm"
+        action={action}
+        onSubmit={() => setSubmitted(true)}
+      >
         <input type="hidden" name="month" value={`${monthName} ${year}`} />
         <input
           type="text"
@@ -142,7 +147,7 @@ export function PaymentForm({ copy }: { copy: PaymentCopy }) {
         >
           <Icon name="verified" /> {copy.submitLabel}
         </button>
-        {state.message ? (
+        {submitted && state.message ? (
           <p className="mt-4 rounded-lg bg-surface-low p-3 text-sm text-secondary">{state.message}</p>
         ) : null}
         <p className="mt-6 flex items-center gap-2 text-xs text-muted">

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { submitLeadTo1inall, submitPaymentFormTo1inall } from "@/lib/leads";
+import { submitLeadTo1inall } from "@/lib/leads";
 
 /** Honeypot field name — avoid website/url so browsers do not autofill it. */
 const HONEYPOT = "company_fax";
@@ -82,50 +82,14 @@ export async function submitPayment(_prev: { ok: boolean; message: string }, for
   const guestName = String(formData.get("name") ?? "").trim();
   const mobile = String(formData.get("phone") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
-  const travelDate = String(formData.get("date") ?? "").trim();
   const amount = String(formData.get("amount") ?? "").trim();
   const utr = String(formData.get("utr") ?? "").trim();
-  const packageTier = String(formData.get("tier") ?? "").trim();
-  const preferredMonth = String(formData.get("month") ?? "").trim();
-  const destination = String(formData.get("destination") ?? "").trim();
 
   if (!guestName || !mobile || !email || !amount || !utr) {
     return { ok: false, message: "Please complete every required field." };
   }
 
-  const amountTransferred = [amount, utr ? `UTR: ${utr}` : "", destination ? `Destination: ${destination}` : ""]
-    .filter(Boolean)
-    .join(" | ");
-
-  const message = [
-    "Payment form submission",
-    destination ? `Destination: ${destination}` : "",
-    packageTier ? `Package tier: ${packageTier}` : "",
-    preferredMonth ? `Preferred month: ${preferredMonth}` : "",
-    travelDate ? `Travel date: ${travelDate}` : "",
-    amount ? `Amount transferred: ${amount}` : "",
-    utr ? `UTR: ${utr}` : "",
-  ]
-    .filter(Boolean)
-    .join(" | ");
-
-  try {
-    // Payment form does NOT create a lead on 1inall — email / form submission only.
-    await submitPaymentFormTo1inall({
-      name: guestName,
-      email,
-      phone: mobile,
-      message,
-      packageTier: packageTier || "—",
-      preferredMonth: preferredMonth || "—",
-      travelDate,
-      amountTransferred,
-      pagePath: "/payment",
-    });
-  } catch (error) {
-    // Still confirm to the guest; 1inall sync is best-effort (same as inquiry).
-    console.error("[1inall] payment form sync failed", error);
-  }
-
+  // Payment never calls 1inall /api/leads/submit — that endpoint always creates a lead row.
+  // Home/Contact/floating still create leads via submitInquiry.
   return { ok: true, message: "Payment form request saved" };
 }

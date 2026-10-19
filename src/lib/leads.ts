@@ -6,7 +6,6 @@ loadProjectEnv();
 
 const DEFAULT_LEADS_URL = "https://app.1inalltravel.com/api/leads/submit";
 const DEFAULT_INQUIRY_FORM = "F-20261018-7817";
-const DEFAULT_PAYMENT_FORM = "F-20261018-3262";
 /** Deployment public API key for server-to-server 1inall access (not for browser JS). */
 const DEFAULT_API_KEY = "4Bz9kP2nX7qR8dL3aF1mT5cH6jV0wSgYx";
 
@@ -20,18 +19,6 @@ export type InquiryLeadPayload = {
   phone: string;
   packageTier: string;
   preferredMonth: string;
-  pagePath?: string;
-};
-
-export type PaymentFormPayload = {
-  name: string;
-  email: string;
-  phone: string;
-  message: string;
-  packageTier?: string;
-  preferredMonth?: string;
-  travelDate?: string;
-  amountTransferred?: string;
   pagePath?: string;
 };
 
@@ -126,28 +113,6 @@ export async function submitLeadTo1inall(payload: InquiryLeadPayload): Promise<v
       "ph num": payload.phone,
       "package tire": payload.packageTier,
       "Prefered month": payload.preferredMonth,
-    },
-    payload.pagePath,
-  );
-}
-
-/** Payment — form F-20261018-3262 (no lead; email / form submission only). */
-export async function submitPaymentFormTo1inall(payload: PaymentFormPayload): Promise<void> {
-  const formCode = process.env.INALL_PAYMENT_FORM_CODE?.trim() || DEFAULT_PAYMENT_FORM;
-  await postTo1inall(
-    formCode,
-    {
-      name: payload.name,
-      email: payload.email,
-      phone: payload.phone,
-      message: payload.message,
-      "Guest name": payload.name,
-      Mobile: payload.phone,
-      Email: payload.email,
-      "package tire": payload.packageTier || "",
-      "Prefered month": payload.preferredMonth || "",
-      "Travel date": payload.travelDate || "",
-      "Amount transferred": payload.amountTransferred || "",
     },
     payload.pagePath,
   );
