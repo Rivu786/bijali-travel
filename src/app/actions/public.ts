@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { submitLeadTo1inall } from "@/lib/leads";
+import { submitLeadTo1inall, submitPaymentTo1inall } from "@/lib/leads";
 
 /** Honeypot field name — avoid website/url so browsers do not autofill it. */
 const HONEYPOT = "company_fax";
@@ -84,12 +84,47 @@ export async function submitPayment(_prev: { ok: boolean; message: string }, for
   const email = String(formData.get("email") ?? "").trim();
   const amount = String(formData.get("amount") ?? "").trim();
   const utr = String(formData.get("utr") ?? "").trim();
+  const destination = String(formData.get("destination") ?? "").trim();
+  const tier = String(formData.get("tier") ?? "Deluxe").trim();
+  const preferredMonth = String(formData.get("month") ?? "").trim();
+  const travelDate = String(formData.get("date") ?? "").trim();
 
-  if (!guestName || !mobile || !email || !amount || !utr) {
+  if (!guestName || !mobile || !email || !amount || !utr || !destination) {
     return { ok: false, message: "Please complete every required field." };
   }
 
-  // Payment never calls 1inall /api/leads/submit — that endpoint always creates a lead row.
-  // Home/Contact/floating still create leads via submitInquiry.
-  return { ok: true, message: "Payment form request saved" };
+  try {
+    const result = await submitPaymentTo1inall({
+      destination,
+      packageTier: tier,
+      preferredMonth,
+      name: guestName,
+      email,
+      phone: mobile,
+      travelDate,
+      amount,
+      utr,
+    });
+
+    if (result.leadId) {
+      console.warn(
+        "[1inall] payment unexpectedly created a lead",
+        result.leadId,
+        "— form should be submission_only",
+      );
+    }
+
+    const ref = result.submissionId ? ` Ref: ${result.submissionId}` : "";
+    return {
+      ok: true,
+      message: `Proof received. Accounts will confirm your allotment by email and WhatsApp.${ref}`,
+    };
+  } catch (error) {
+    console.error("[1inall] payment sync failed", error);
+    const detail = error instanceof Error ? error.message : "Unknown error";
+    return {
+      ok: false,
+      message: `Could not save payment proof to 1inall. ${detail}`,
+    };
+  }
 }

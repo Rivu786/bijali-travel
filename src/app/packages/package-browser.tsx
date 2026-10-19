@@ -147,7 +147,7 @@ export function PackageBrowser({
               className="absolute top-1/2 left-3 -translate-y-1/2 text-[18px] text-outline"
             />
             <input
-              className="input pl-10"
+              className="input !pl-10"
               value={q}
               onChange={(e) => {
                 const value = e.target.value;

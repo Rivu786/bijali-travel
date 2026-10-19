@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
 import { submitPayment } from "@/app/actions/public";
 import { Icon } from "@/components/icon";
 import { mediaSrc } from "@/lib/media-path";
@@ -29,6 +29,7 @@ function yearOptions() {
 export function PaymentForm({ copy }: { copy: PaymentCopy }) {
   const [state, action, pending] = useActionState(submitPayment, { ok: false, message: "" });
   const [submitted, setSubmitted] = useState(false);
+  const [locked, setLocked] = useState(false);
   const instructions = paymentLines(copy.instructions);
   const years = useMemo(() => yearOptions(), []);
   const now = new Date();
@@ -42,12 +43,25 @@ export function PaymentForm({ copy }: { copy: PaymentCopy }) {
     [copy.upiLabel, copy.upi],
   ].filter(([, value]) => value);
 
+  useEffect(() => {
+    if (!pending && locked && state.message && !state.ok) {
+      setLocked(false);
+    }
+  }, [pending, locked, state.message, state.ok]);
+
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
       <form
         className="rounded-xl bg-white p-8 shadow-sm"
         action={action}
-        onSubmit={() => setSubmitted(true)}
+        onSubmit={(e) => {
+          if (locked || pending) {
+            e.preventDefault();
+            return;
+          }
+          setLocked(true);
+          setSubmitted(true);
+        }}
       >
         <input type="hidden" name="month" value={`${monthName} ${year}`} />
         <input
@@ -142,13 +156,19 @@ export function PaymentForm({ copy }: { copy: PaymentCopy }) {
         </div>
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || locked}
           className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-cyan py-3 font-semibold text-white disabled:opacity-60"
         >
           <Icon name="verified" /> {copy.submitLabel}
         </button>
         {submitted && state.message ? (
-          <p className="mt-4 rounded-lg bg-surface-low p-3 text-sm text-secondary">{state.message}</p>
+          <p
+            className={`mt-4 rounded-lg p-3 text-sm ${
+              state.ok ? "bg-surface-low text-secondary" : "bg-red-50 text-red-700"
+            }`}
+          >
+            {state.message}
+          </p>
         ) : null}
         <p className="mt-6 flex items-center gap-2 text-xs text-muted">
           <Icon name="lock" className="text-[16px] text-cyan" /> {copy.privacyNote}

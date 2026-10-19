@@ -13,7 +13,7 @@ export function FloatingInquiry() {
   useEffect(() => {
     setClosed(false);
     setReady(false);
-    const timer = window.setTimeout(() => setReady(true), 10_000);
+    const timer = window.setTimeout(() => setReady(true), 15_000);
     return () => window.clearTimeout(timer);
   }, [pathname]);
 
