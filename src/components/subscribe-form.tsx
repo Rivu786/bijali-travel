@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { subscribe } from "@/app/actions/public";
 import { Icon } from "@/components/icon";
 
@@ -46,6 +47,13 @@ export function SubscribeForm({
           </button>
         </div>
         {state.message ? <p className="text-sm text-sky">{state.message}</p> : null}
+        <p className="text-[11px] leading-4 text-slate-400">
+          Subscribe only if you want trip notes. Unsubscribe any time. See{" "}
+          <Link href="/privacy" className="text-sky hover:underline">
+            Privacy & Data Rights
+          </Link>
+          .
+        </p>
       </form>
     </div>
   );

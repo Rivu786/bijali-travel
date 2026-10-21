@@ -18,7 +18,7 @@ export function SiteFooter({
   blurb: string;
   badges: { label: string; icon: string }[];
   popular: { label: string; href: string }[];
-  partners: { name: string; caption: string; markKey: string | null; logoUrl?: string | null }[];
+  partners: { name: string; caption: string; logoUrl?: string | null }[];
   subscribe: { eyebrow: string; title: string; body: string };
 }) {
   return (
@@ -85,18 +85,28 @@ export function SiteFooter({
               <h4 className="mb-4 text-lg font-semibold text-white">Support & Legal</h4>
               <ul className="space-y-2.5 text-sm text-slate-400">
                 <li>
-                  <Link href="/#faq" className="hover:text-white">
+                  <Link href="/faq" className="hover:text-white">
                     Concierge FAQs
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contact" className="hover:text-white">
+                  <Link href="/booking-terms" className="hover:text-white">
                     Terms of Booking
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contact" className="hover:text-white">
+                  <Link href="/terms" className="hover:text-white">
+                    Terms & Conditions
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/privacy" className="hover:text-white">
                     Privacy & Data Rights
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/gdpr" className="hover:text-white">
+                    GDPR
                   </Link>
                 </li>
               </ul>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { submitPayment } from "@/app/actions/public";
 import { Icon } from "@/components/icon";
 import { mediaSrc } from "@/lib/media-path";
@@ -172,6 +173,17 @@ export function PaymentForm({ copy }: { copy: PaymentCopy }) {
         ) : null}
         <p className="mt-6 flex items-center gap-2 text-xs text-muted">
           <Icon name="lock" className="text-[16px] text-cyan" /> {copy.privacyNote}
+        </p>
+        <p className="mt-2 text-xs leading-5 text-muted">
+          Submitting proof means you accept the{" "}
+          <Link href="/booking-terms" className="font-semibold text-secondary hover:underline">
+            Terms of Booking
+          </Link>{" "}
+          and the{" "}
+          <Link href="/privacy" className="font-semibold text-secondary hover:underline">
+            Privacy & Data Rights
+          </Link>{" "}
+          notice.
         </p>
       </form>
 

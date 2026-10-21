@@ -14,7 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   ]);
   const updated = new Map(pages.map((page) => [page.path, page.updatedAt]));
-  const staticPaths = ["/", "/packages", "/contact", "/payment"];
+  const staticPaths = ["/", "/packages", "/contact", "/payment", "/terms", "/privacy", "/gdpr", "/booking-terms", "/faq"];
   return [
     ...staticPaths.map((path) => ({
       url: path === "/" ? origin : `${origin}${path}`,

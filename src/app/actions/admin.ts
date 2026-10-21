@@ -175,8 +175,8 @@ export async function saveLines(formData: FormData) {
     await prisma.partner.deleteMany();
     await prisma.partner.createMany({
       data: rows.map((row, sortOrder) => {
-        const [name, caption, markKey] = row.split("|").map((part) => part.trim());
-        return { name: name || "Partner", caption: caption || "", markKey: markKey || null, sortOrder };
+        const [name, caption, logoUrl] = row.split("|").map((part) => part.trim());
+        return { name: name || "Partner", caption: caption || "", logoUrl: logoUrl || null, sortOrder };
       }),
     });
   } else if (kind === "faqs") {
@@ -504,14 +504,14 @@ export async function saveRepeatable(formData: FormData) {
       });
     }
   } else if (kind === "partners") {
-    const rows = orderedRows(formData, ["sort", "markKey", "name", "caption"]);
+    const rows = orderedRows(formData, ["sort", "name", "caption", "logoUrl"]);
     await prisma.partner.deleteMany();
     if (rows.length) {
       await prisma.partner.createMany({
         data: rows.map(({ row, order }) => ({
-          markKey: row[1] || null,
-          name: row[2] || "Partner",
-          caption: row[3] || "",
+          name: row[1] || "Partner",
+          caption: row[2] || "",
+          logoUrl: row[3] || null,
           sortOrder: order,
         })),
       });

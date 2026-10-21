@@ -372,13 +372,13 @@ async function main() {
 
   await prisma.partner.createMany({
     data: [
-      ["IATA", "Accredited Agent", "iata"],
-      ["SSL Secure", "256-bit Checkout", "ssl"],
-      ["MoT India", "Recognised Partner", "mot"],
-      ["TOAB", "Tour Operators", "toab"],
-      ["ADTOI", "Inbound Tourism", "adtoi"],
-      ["Incredible India", "Ministry of Tourism", "incredible"],
-    ].map(([name, caption, markKey], sortOrder) => ({ name, caption, markKey, sortOrder })),
+      ["IATA", "Accredited Agent"],
+      ["SSL Secure", "256-bit Checkout"],
+      ["MoT India", "Recognised Partner"],
+      ["TOAB", "Tour Operators"],
+      ["ADTOI", "Inbound Tourism"],
+      ["Incredible India", "Ministry of Tourism"],
+    ].map(([name, caption], sortOrder) => ({ name, caption, sortOrder })),
   });
 
   await prisma.faq.createMany({

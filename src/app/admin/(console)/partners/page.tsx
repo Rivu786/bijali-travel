@@ -17,7 +17,8 @@ export default async function PartnersAdmin({
       <div>
         <h1 className="text-3xl font-bold">Affiliation & Partners</h1>
         <p className="mt-1 text-sm text-muted">
-          Each row is one partner. Icon is a Material icon name such as verified, or a built-in mark: iata, ssl, mot.
+          Each row is one partner. Upload the mark in Media, copy the link (for example /media/iata.webp), and paste it
+          as the logo. An https image URL works too.
         </p>
       </div>
       {query.saved ? (
@@ -32,15 +33,15 @@ export default async function PartnersAdmin({
           addLabel="Add partner"
           fields={[
             { name: "sort", label: "Order" },
-            { name: "markKey", label: "Icon" },
             { name: "name", label: "Title" },
             { name: "caption", label: "Caption" },
+            { name: "logoUrl", label: "Logo URL", preview: "image" },
           ]}
           initial={partners.map((item) => ({
             sort: String(item.sortOrder),
-            markKey: item.markKey ?? "",
             name: item.name,
             caption: item.caption,
+            logoUrl: item.logoUrl ?? "",
           }))}
         />
         <button className="rounded-lg bg-cyan px-4 py-2 text-sm font-semibold text-white focus-visible:ring-2 focus-visible:ring-cyan">

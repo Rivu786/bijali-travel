@@ -312,6 +312,9 @@ export default async function Home() {
           <span className="eyebrow mb-2 block text-secondary">{faq?.eyebrow}</span>
           <h2 className="headline mb-3">{faq?.title}</h2>
           <p className="text-muted">{faq?.body}</p>
+          <Link href="/faq" className="mt-4 inline-block text-sm font-semibold text-secondary hover:underline">
+            All concierge questions
+          </Link>
         </div>
         <FaqList faqs={content.faqs} />
       </section>

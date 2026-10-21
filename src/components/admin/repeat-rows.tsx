@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-type Field = { name: string; label: string; area?: boolean };
+type Field = { name: string; label: string; area?: boolean; preview?: "image" };
 
 export function RepeatRows({
   fields,
@@ -71,6 +71,9 @@ export function RepeatRows({
                         onChange={(event) => update(index, field.name, event.target.value)}
                       />
                     )}
+                    {field.preview === "image" && row[field.name]?.trim() ? (
+                      <ImagePreview key={row[field.name]} src={row[field.name]} />
+                    ) : null}
                   </label>
                 ))}
               </div>
@@ -98,6 +101,21 @@ export function RepeatRows({
   function update(index: number, name: string, value: string) {
     setRows((current) => current.map((row, item) => (item === index ? { ...row, [name]: value } : row)));
   }
+}
+
+function ImagePreview({ src }: { src: string }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) return null;
+  return (
+    // User-typed media links can be incomplete while editing. A plain image fails quietly.
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src.trim()}
+      alt=""
+      className="mt-2 h-14 w-auto max-w-full object-contain"
+      onError={() => setFailed(true)}
+    />
+  );
 }
 
 function summaryFor(row: Record<string, string>, fields: Field[]) {

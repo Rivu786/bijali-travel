@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useMemo, useState } from "react";
+import Link from "next/link";
 import { submitInquiry } from "@/app/actions/public";
 import { Icon } from "@/components/icon";
 
@@ -153,8 +154,16 @@ export function InquiryForm({ page = "/" }: { page?: string }) {
       >
         <Icon name="phone_in_talk" className="text-[18px]" /> Request Free Call Back
       </button>
-      <p className="eyebrow text-center text-outline">
-        No spam. 100% confidential planning. Direct WhatsApp response available.
+      <p className="text-center text-xs leading-5 text-outline">
+        By sending this enquiry you agree to the{" "}
+        <Link href="/booking-terms" className="font-semibold text-secondary hover:underline">
+          Terms of Booking
+        </Link>{" "}
+        and consent to our use of these details as described in{" "}
+        <Link href="/privacy" className="font-semibold text-secondary hover:underline">
+          Privacy & Data Rights
+        </Link>
+        .
       </p>
       {state.message ? (
         <p className="rounded-lg bg-surface-low p-3 text-center text-sm text-secondary">
